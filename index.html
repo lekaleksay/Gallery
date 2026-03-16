@@ -2,108 +2,50 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8">
-    <title>A1 Gallery | Museum Dev Lab</title>
+    <title>Vantablack Gallery | Smooth Lighting</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <body>
 
     <a-scene 
-        background="color: #050505" 
-        renderer="colorManagement: true; toneMapping: ACESFilmic; exposure: 1.1;"
+        background="color: #020202" 
+        renderer="colorManagement: true; toneMapping: ACESFilmic; exposure: 0.8;"
         light="defaultLightsEnabled: false">
 
         <a-assets>
             <img id="floor-col" src="textures/floor_color.jpg">
             <img id="floor-nor" src="textures/floor_normal.jpg">
-            <img id="floor-rgh" src="textures/floor_roughness.jpg">
-
             <img id="wall-col" src="textures/wall_color.jpg">
             <img id="wall-nor" src="textures/wall_normal.jpg">
-            <img id="wall-rgh" src="textures/wall_roughness.jpg">
-
             <img id="art1" src="assets/art1.jpg">
         </a-assets>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.15"></a-light>
+        <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
 
         <a-plane position="0 0 0" rotation="-90 0 0" width="4" height="7" 
-                 material="src: #floor-col; normalMap: #floor-nor; roughnessMap: #floor-rgh; repeat: 4 7; roughness: 0.8;"></a-plane>
-        <a-plane position="0 3 0" rotation="90 0 0" width="4" height="7" color="#0a0a0a"></a-plane>
+                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.9; metalness: 0.1;"></a-plane>
+        
+        <a-plane position="0 3 0" rotation="90 0 0" width="4" height="7" color="#050505"></a-plane>
 
-        <a-plane position="0 1.5 -3.5" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; roughnessMap: #wall-rgh; repeat: 2 1.5; color: #444;"></a-plane>
-        <a-plane position="0 1.5 3.5" rotation="0 180 0" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; roughnessMap: #wall-rgh; repeat: 2 1.5; color: #444;"></a-plane>
-        <a-plane position="-2 1.5 0" rotation="0 90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; roughnessMap: #wall-rgh; repeat: 4 1.5; color: #444;"></a-plane>
-        <a-plane position="2 1.5 0" rotation="0 -90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; roughnessMap: #wall-rgh; repeat: 4 1.5; color: #444;"></a-plane>
+        <a-plane position="0 1.5 -3.5" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1.5; color: #666;"></a-plane>
+        <a-plane position="0 1.5 3.5" rotation="0 180 0" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1.5; color: #666;"></a-plane>
+        <a-plane position="-2 1.5 0" rotation="0 90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1.5; color: #666;"></a-plane>
+        <a-plane position="2 1.5 0" rotation="0 -90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1.5; color: #666;"></a-plane>
 
         <a-entity position="-1.97 1.6 -2.25" rotation="0 90 0">
             <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
             <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5" penumbra="0.7" distance="5"></a-light>
-        </a-entity>
-
-        <a-entity position="-1.97 1.6 -0.75" rotation="0 90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="-1.97 1.6 0.75" rotation="0 90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="-1.97 1.6 2.25" rotation="0 90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="1.97 1.6 -2.25" rotation="0 -90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="1.97 1.6 -0.75" rotation="0 -90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="1.97 1.6 0.75" rotation="0 -90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="1.97 1.6 2.25" rotation="0 -90 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="-1 1.6 -3.47" rotation="0 0 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-        <a-entity position="1 1.6 -3.47" rotation="0 0 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-
-        <a-entity position="-1 1.6 3.47" rotation="0 180 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
-        </a-entity>
-        <a-entity position="1 1.6 3.47" rotation="0 180 0">
-            <a-box width="0.66" height="0.9" depth="0.03" color="#000"></a-box>
-            <a-image src="#art1" width="0.6" height="0.84" position="0 0 0.02"></a-image>
-            <a-light type="spot" position="0 1.2 1.2" rotation="-45 0 0" angle="50" intensity="1.5"></a-light>
+            
+            <a-light type="spot" 
+                     position="0 1.8 2" 
+                     rotation="-40 0 0" 
+                     angle="45" 
+                     intensity="1.5" 
+                     penumbra="1" 
+                     decay="2" 
+                     distance="6">
+            </a-light>
         </a-entity>
 
         <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
@@ -112,9 +54,9 @@
             </a-entity>
         </a-entity>
 
-        <a-circle class="checkpoint" position="0 0.02 2.5" radius="0.15" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 -2.5" radius="0.15" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 2.5" radius="0.15" color="#fff" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#fff" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 -2.5" radius="0.15" color="#fff" opacity="0.3" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 </body>
