@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>VR Gallery | Museum Dev Lab</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+</head>
+<body>
+
+    <a-scene 
+        background="color: #050505" 
+        fog="type: exponential; color: #050505; density: 0.15"
+        light="defaultLightsEnabled: false"
+        renderer="antialias: true; colorManagement: true; exposure: 1.2;">
+
+        <a-assets>
+            <img id="art1" src="assets/art1.jpg" crossorigin="anonymous">
+            
+            <img id="floor-col" src="textures/floor_diff.jpg" crossorigin="anonymous">
+            <img id="floor-nor" src="textures/floor_nor.jpg" crossorigin="anonymous">
+            <img id="floor-rgh" src="textures/floor_rough.jpg" crossorigin="anonymous">
+
+            <img id="wall-col" src="textures/wall_diff.jpg" crossorigin="anonymous">
+            <img id="wall-nor" src="textures/wall_nor.jpg" crossorigin="anonymous">
+            <img id="wall-rgh" src="textures/wall_rough.jpg" crossorigin="anonymous">
+        </a-assets>
+
+        <a-light type="ambient" color="#222" intensity="0.5"></a-light>
+        
+        <a-entity id="lightTarget" position="0 1.8 -4.9"></a-entity>
+        
+        <a-light 
+            type="spot" 
+            position="0 4 -2.5" 
+            target="#lightTarget" 
+            angle="45" 
+            penumbra="0.6" 
+            intensity="3" 
+            color="#fffdf2"
+            castShadow="true">
+        </a-light>
+
+        <a-plane 
+            position="0 0 0" 
+            rotation="-90 0 0" 
+            width="20" height="20" 
+            material="src: #floor-col; 
+                      normalMap: #floor-nor; 
+                      roughnessMap: #floor-rgh; 
+                      repeat: 10 10; 
+                      normalTextureRepeat: 10 10; 
+                      roughnessTextureRepeat: 10 10;
+                      metalness: 0.1;
+                      roughness: 0.8;">
+        </a-plane>
+
+        <a-plane 
+            position="0 2 -5" 
+            width="12" height="4" 
+            material="src: #wall-col; 
+                      normalMap: #wall-nor; 
+                      roughnessMap: #wall-rgh;
+                      repeat: 4 2;
+                      normalTextureRepeat: 4 2;
+                      color: #444;">
+        </a-plane>
+
+        <a-entity position="0 1.8 -4.98">
+            <a-box width="2.1" height="1.6" depth="0.05" color="#0a0a0a"></a-box>
+            <a-image src="#art1" width="2" height="1.5" position="0 0 0.03"></a-image>
+            <a-text value="Project Vantablack" align="center" position="0 -1 0.05" scale="0.5 0.5 0.5" color="#888"></a-text>
+        </a-entity>
+
+        <a-circle position="0 0.02 -1.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
+        <a-circle position="0 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
+        <a-circle position="3 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
+        <a-circle position="-3 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
+
+        <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate; animateSpeed: 5">
+            <a-entity camera position="0 1.6 0" look-controls>
+                <a-cursor 
+                    id="cursor"
+                    animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; easing: easeInCubic; dur: 150; startEvents: click"
+                    intersection-spawn="event: click; mixin: voxel"
+                    color="#fff"
+                    raycaster="objects: .checkpoint">
+                </a-cursor>
+            </a-entity>
+        </a-entity>
+
+        <a-text value="museumdevlab.ru" position="4 0.5 -4.8" rotation="0 -10 0" color="#555" scale="0.6 0.6 0.6"></a-text>
+
+    </a-scene>
+</body>
+</html>
