@@ -1,96 +1,97 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
+<html>
+  <head>
     <meta charset="utf-8">
-    <title>VR Gallery | Museum Dev Lab</title>
+    <title>Gallery 4x7 | Museum Dev Lab</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
+    <a-scene background="color: #050505" light="defaultLightsEnabled: false" renderer="colorManagement: true;">
+      
+      <a-assets>
+        <img id="floor-col" src="textures/floor_color.jpg">
+        <img id="floor-nor" src="textures/floor_normal.jpg">
+        <img id="wall-col" src="textures/wall_color.jpg">
+        <img id="wall-nor" src="textures/wall_normal.jpg">
+        <img id="art-placeholder" src="assets/art1.jpg">
+      </a-assets>
 
-    <a-scene 
-        background="color: #050505" 
-        fog="type: exponential; color: #050505; density: 0.15"
-        light="defaultLightsEnabled: false"
-        renderer="antialias: true; colorManagement: true; exposure: 1.2;">
+      <a-light type="ambient" color="#333"></a-light>
 
-<a-assets>
-    <img id="art1" src="assets/art1.jpg" crossorigin="anonymous">
-    
-    <img id="floor-col" src="textures/floor_color.jpg" crossorigin="anonymous">
-    <img id="floor-nor" src="textures/floor_normal.jpg" crossorigin="anonymous">
-    <img id="floor-rgh" src="textures/floor_roughness.jpg" crossorigin="anonymous">
+      <a-plane position="0 0 0" rotation="-90 0 0" width="4" height="7" 
+               material="src: #floor-col; normalMap: #floor-nor; repeat: 2 4; normalTextureRepeat: 2 4; roughness: 0.8;"></a-plane>
 
-    <img id="wall-col" src="textures/wall_color.jpg" crossorigin="anonymous">
-    <img id="wall-nor" src="textures/wall_normal.jpg" crossorigin="anonymous">
-    <img id="wall-rgh" src="textures/wall_roughness.jpg" crossorigin="anonymous">
-</a-assets>
+      <a-plane position="0 3 0" rotation="90 0 0" width="4" height="7" color="#111"></a-plane>
 
-        <a-light type="ambient" color="#222" intensity="0.5"></a-light>
-        
-        <a-entity id="lightTarget" position="0 1.8 -4.9"></a-entity>
-        
-        <a-light 
-            type="spot" 
-            position="0 4 -2.5" 
-            target="#lightTarget" 
-            angle="45" 
-            penumbra="0.6" 
-            intensity="3" 
-            color="#fffdf2"
-            castShadow="true">
-        </a-light>
+      <a-plane position="0 1.5 -3.5" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1; color: #444;"></a-plane>
+      <a-plane position="0 1.5 3.5" rotation="0 180 0" width="4" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1; color: #444;"></a-plane>
+      <a-plane position="-2 1.5 0" rotation="0 90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1; color: #444;"></a-plane>
+      <a-plane position="2 1.5 0" rotation="0 -90 0" width="7" height="3" material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1; color: #444;"></a-plane>
 
-        <a-plane 
-            position="0 0 0" 
-            rotation="-90 0 0" 
-            width="20" height="20" 
-            material="src: #floor-col; 
-                      normalMap: #floor-nor; 
-                      roughnessMap: #floor-rgh; 
-                      repeat: 10 10; 
-                      normalTextureRepeat: 10 10; 
-                      roughnessTextureRepeat: 10 10;
-                      metalness: 0.1;
-                      roughness: 0.8;">
-        </a-plane>
+      <a-entity position="-1.98 1.6 -2.25" rotation="0 90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+        <a-light type="spot" position="0 1 1" rotation="-45 0 0" intensity="0.5" angle="30"></a-light>
+      </a-entity>
+      <a-entity position="-1.98 1.6 -0.75" rotation="0 90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="-1.98 1.6 0.75" rotation="0 90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="-1.98 1.6 2.25" rotation="0 90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
 
-        <a-plane 
-            position="0 2 -5" 
-            width="12" height="4" 
-            material="src: #wall-col; 
-                      normalMap: #wall-nor; 
-                      roughnessMap: #wall-rgh;
-                      repeat: 4 2;
-                      normalTextureRepeat: 4 2;
-                      color: #444;">
-        </a-plane>
+      <a-entity position="1.98 1.6 -2.25" rotation="0 -90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="1.98 1.6 -0.75" rotation="0 -90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="1.98 1.6 0.75" rotation="0 -90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="1.98 1.6 2.25" rotation="0 -90 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
 
-        <a-entity position="0 1.8 -4.98">
-            <a-box width="2.1" height="1.6" depth="0.05" color="#0a0a0a"></a-box>
-            <a-image src="#art1" width="2" height="1.5" position="0 0 0.03"></a-image>
-            <a-text value="Project Vantablack" align="center" position="0 -1 0.05" scale="0.5 0.5 0.5" color="#888"></a-text>
+      <a-entity position="-1 1.6 -3.48" rotation="0 0 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="1 1.6 -3.48" rotation="0 0 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+
+      <a-entity position="-1 1.6 3.48" rotation="0 180 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+      <a-entity position="1 1.6 3.48" rotation="0 180 0">
+        <a-box width="0.35" height="0.47" depth="0.02" color="#000"></a-box>
+        <a-image src="#art-placeholder" width="0.3" height="0.42" position="0 0 0.015"></a-image>
+      </a-entity>
+
+      <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
+        <a-entity camera position="0 1.6 0" look-controls>
+          <a-cursor color="#fff" raycaster="objects: .checkpoint"></a-cursor>
         </a-entity>
+      </a-entity>
 
-        <a-circle position="0 0.02 -1.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
-        <a-circle position="0 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
-        <a-circle position="3 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
-        <a-circle position="-3 0.02 -3.5" radius="0.2" color="#fff" rotation="-90 0 0" class="checkpoint" opacity="0.3"></a-circle>
-
-        <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate; animateSpeed: 5">
-            <a-entity camera position="0 1.6 0" look-controls>
-                <a-cursor 
-                    id="cursor"
-                    animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; easing: easeInCubic; dur: 150; startEvents: click"
-                    intersection-spawn="event: click; mixin: voxel"
-                    color="#fff"
-                    raycaster="objects: .checkpoint">
-                </a-cursor>
-            </a-entity>
-        </a-entity>
-
-        <a-text value="museumdevlab.ru" position="4 0.5 -4.8" rotation="0 -10 0" color="#555" scale="0.6 0.6 0.6"></a-text>
+      <a-circle class="checkpoint" position="0 0.05 0" radius="0.2" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
+      <a-circle class="checkpoint" position="0 0.05 -2.5" radius="0.2" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
+      <a-circle class="checkpoint" position="0 0.05 2.5" radius="0.2" color="#fff" opacity="0.5" rotation="-90 0 0"></a-circle>
 
     </a-scene>
-</body>
+  </body>
 </html>
