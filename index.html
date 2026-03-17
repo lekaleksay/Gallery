@@ -4,29 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Mirror Floor Gallery</title>
+    <title>Museum Dev Lab | Video Ceiling</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { 
-            width: 100%; height: 100%; height: -webkit-fill-available; 
-            overflow: hidden; position: fixed; background-color: #000; 
-        }
-        .a-canvas {
-            position: fixed !important; top: 0 !important; left: 0 !important;
-            width: 100vw !important; height: 100% !important;
-        }
+        html, body { width: 100%; height: 100%; height: -webkit-fill-available; overflow: hidden; position: fixed; background-color: #000; }
+        .a-canvas { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100% !important; }
         .a-enter-vr { display: none !important; }
 
         #splash-screen {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: #010101; color: #ffffff;
-            z-index: 10000; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            font-family: 'Segoe UI', Tahoma, sans-serif; cursor: pointer;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #010101; color: #ffffff; z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; font-family: 'Segoe UI', Tahoma, sans-serif; cursor: pointer;
         }
         #splash-screen h1 { font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; text-align: center; }
         #splash-screen p { color: #4facfe; font-size: 1.1rem; text-align: center; padding: 0 20px; transition: 0.3s; }
@@ -48,10 +39,12 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="10000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=15">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=15">
-            <img id="floor-col" src="textures/floor_color.jpg?v=15">
-            <img id="floor-nor" src="textures/floor_normal.jpg?v=15">
+            <img id="wall-col" src="textures/wall_color.jpg?v=16">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=16">
+            <img id="floor-col" src="textures/floor_color.jpg?v=16">
+            <img id="floor-nor" src="textures/floor_normal.jpg?v=16">
+            
+            <video id="ceiling-vid" src="assets/ceiling.mp4" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-sky color="#000"></a-sky>
@@ -60,12 +53,11 @@
                   material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.1 0.1; roughness: 0.1; metalness: 0.7; transparent: true; opacity: 0.85;"></a-circle>
         
         <a-circle position="0 6 0" radius="10" rotation="90 0 0" 
-                  material="color: #010101; shader: standard; roughness: 1;"></a-circle>
+                  material="src: #ceiling-vid; shader: flat; color: #888888;"></a-circle>
 
         <a-light type="ambient" color="#ffffff" intensity="0.1"></a-light>
-
         <a-entity id="gallery-container"></a-entity>
-
+        
         <a-entity id="rig" position="0 0 0">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls></a-entity>
         </a-entity>
@@ -75,7 +67,6 @@
     <script>
         const gallery = document.querySelector('#gallery-container');
         const scene = document.querySelector('a-scene');
-        
         const count = 12;      
         const radius = 7.5;    
 
@@ -111,10 +102,8 @@
         } else { finishCheck(false); }
         setTimeout(() => { finishCheck(false); }, 1500);
 
-        // ГЕНЕРАЦИЯ ЗАЛА: Верхний мир + Зазеркалье
         scene.addEventListener('loaded', () => {
             let artCounter = 1;
-
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
                 const x = Math.cos(angle) * radius;
@@ -122,7 +111,6 @@
                 const rotY = -(i / count) * 360 - 90;
 
                 const segment = document.createElement('a-entity');
-                // Центр сегмента приподнят на 3 метра (так как высота стены 6м)
                 segment.setAttribute('position', `${x} 3 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
@@ -131,37 +119,37 @@
                 if (i % 2 === 0) {
                     innerHTML = `
                         <a-plane width="4.05" height="6" position="0 0 0"
-                                 material="src: assets/art${artCounter}.jpg?v=15; shader: flat; color: #eeeeee;">
-                        </a-plane>
-
+                                 material="src: assets/art${artCounter}.jpg?v=16; shader: flat; color: #eeeeee;"></a-plane>
                         <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
-                                 material="src: assets/art${artCounter}.jpg?v=15; shader: flat; color: #888888;">
-                        </a-plane>
+                                 material="src: assets/art${artCounter}.jpg?v=16; shader: flat; color: #888888;"></a-plane>
                     `;
                     artCounter++;
                 } else {
                     innerHTML = `
                         <a-plane width="4.05" height="6" position="0 0 0"
-                                 material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;">
-                        </a-plane>
-
+                                 material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;"></a-plane>
                         <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
-                                 material="src: #wall-col; repeat: 2 3; shader: flat; color: #111111;">
-                        </a-plane>
+                                 material="src: #wall-col; repeat: 2 3; shader: flat; color: #111111;"></a-plane>
                     `;
                 }
-
                 segment.innerHTML = innerHTML;
                 gallery.appendChild(segment);
             }
         });
 
-        // Обработка входа
         document.getElementById('splash-screen').addEventListener('click', function() {
             if (!isChecked) return;
             this.style.display = 'none';
+            
+            // ПРИНУДИТЕЛЬНЫЙ ЗАПУСК ВИДЕО ПОСЛЕ ТАПА
+            const ceilingVideo = document.getElementById('ceiling-vid');
+            if (ceilingVideo) {
+                ceilingVideo.play().catch(e => console.log("Видео не запустилось:", e));
+            }
+
             if (arSupported && scene.enterAR) { scene.enterAR(); } else { try { document.documentElement.requestFullscreen().catch(()=>{}); } catch (e) {} }
         });
+
         scene.addEventListener('exit-vr', () => { document.getElementById('splash-screen').style.display = 'flex'; });
     </script>
 </body>
