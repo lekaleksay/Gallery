@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Optimized 12-gon Gallery</title>
+    <title>Museum Dev Lab | 12-gon Gallery</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -38,7 +38,7 @@
 
     <div id="splash-screen">
         <h1>Museum Dev Lab</h1>
-        <p id="splash-text" class="pulse-text">Проверка устройства...</p>
+        <p id="splash-text" class="pulse-text">Инициализация...</p>
     </div>
 
     <a-scene 
@@ -48,9 +48,9 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="10000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=10">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=10">
-            <img id="floor-col" src="textures/floor_color.jpg?v=10">
+            <img id="wall-col" src="textures/wall_color.jpg?v=12">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=12">
+            <img id="floor-col" src="textures/floor_color.jpg?v=12">
         </a-assets>
 
         <a-sky color="#010101"></a-sky>
@@ -77,14 +77,10 @@
         
         const count = 12;      // 12 стен
         const radius = 7.5;    // Радиус зала
-        
-        // Индексы стен, на которых будут висеть картины (две группы по 3)
-        // Группа 1: стены 11, 0, 1 (Центр - стена 0)
-        // Группа 2: стены 5, 6, 7 (Центр - стена 6)
         const artWalls = [11, 0, 1, 5, 6, 7]; 
         let artCounter = 1;
 
-        // Ловим падение видеопамяти на мобилках
+        // ПЕРЕХВАТЧИК КРАША ПАМЯТИ
         scene.addEventListener('loaded', function () {
             const canvas = document.querySelector('.a-canvas');
             if (canvas) {
@@ -92,22 +88,45 @@
                     event.preventDefault();
                     const splash = document.getElementById('splash-screen');
                     splash.style.display = 'flex';
-                    splash.innerHTML = `<h1 style="color: #ff4444;">CRASH</h1><p>Браузеру не хватило видеопамяти.<br>Сожмите текстуры.</p>`;
+                    splash.innerHTML = `<h1 style="color: #ff4444;">CRASH</h1><p>Браузеру не хватило видеопамяти.</p>`;
                 }, false);
             }
         });
 
-        if (navigator.xr) {
-            navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-                const splashText = document.getElementById('splash-text');
-                if (supported) {
-                    splashText.innerHTML = "[ Коснитесь, чтобы войти в зал ]<br><br><span style='font-size: 0.8rem; color: #888;'>Вы сможете ходить физически</span>";
-                } else {
-                    splashText.innerHTML = "[ Кликните для входа ]<br><br><span style='font-size: 0.8rem; color: #888;'>(WASD для перемещения)</span>";
-                }
-            });
+        // ==========================================
+        // ПУЛЕНЕПРОБИВАЕМАЯ ПРОВЕРКА AR-УСТРОЙСТВА
+        // ==========================================
+        let isChecked = false;   // Флаг окончания проверки
+        let arSupported = false; // Флаг поддержки AR
+
+        function finishCheck(hasAR) {
+            if (isChecked) return; // Блокируем повторное выполнение (например, если сработал и таймер, и промис)
+            isChecked = true;
+            arSupported = hasAR;
+            
+            const splashText = document.getElementById('splash-text');
+            if (hasAR) {
+                splashText.innerHTML = "[ Коснитесь, чтобы войти в AR зал ]<br><br><span style='font-size: 0.8rem; color: #888;'>Вы сможете ходить физически</span>";
+            } else {
+                splashText.innerHTML = "[ Кликните для входа ]<br><br><span style='font-size: 0.8rem; color: #888;'>(Осмотр мышью, WASD для ходьбы)</span>";
+            }
         }
 
+        // Запрашиваем систему
+        if (navigator.xr) {
+            navigator.xr.isSessionSupported('immersive-ar')
+                .then((supported) => { finishCheck(supported); })
+                .catch(() => { finishCheck(false); });
+        } else {
+            finishCheck(false);
+        }
+
+        // ЖЕСТКИЙ ТАЙМАУТ: Если через 1.5 секунды Пиксель или другой смарт молчит — пускаем в 3D.
+        setTimeout(() => { finishCheck(false); }, 1500);
+
+        // ==========================================
+        // ГЕНЕРАЦИЯ ЗАЛА (2 группы картин + 2 прожектора)
+        // ==========================================
         scene.addEventListener('loaded', () => {
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
@@ -119,15 +138,53 @@
                 segment.setAttribute('position', `${x} 3 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
-                // Базовая стена (ширина 4.05 для радиуса 7.5м, чтобы не было щелей)
                 let innerHTML = `<a-plane width="4.05" height="6" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;"></a-plane>`;
                 
-                // Если стена входит в список artWalls, вешаем картину
                 if (artWalls.includes(i)) {
                     innerHTML += `
                         <a-entity position="0 -1.4 0.05">
                             <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                            <a-image src="assets/art${artCounter}.jpg?v=10" width="0.6" height="0.84" position="0 0 0.03"
+                            <a-image src="assets/art${artCounter}.jpg?v=12" width="0.6" height="0.84" position="0 0 0.03"
                                      material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                             <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
-                                   material="emissive:
+                                   material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
+                        </a-entity>
+                    `;
+                    artCounter++;
+                }
+
+                // Прожекторы только напротив центральных картин в группах
+                if (i === 0 || i === 6) {
+                    innerHTML += `
+                        <a-light type="spot" position="0 2.5 4.5" rotation="-25 0 0" 
+                                 intensity="2.5" distance="18" angle="55" penumbra="0.6" color="#fff"></a-light>
+                    `;
+                }
+
+                segment.innerHTML = innerHTML;
+                gallery.appendChild(segment);
+            }
+        });
+
+        // Обработка входа по клику на сплэш-экран
+        document.getElementById('splash-screen').addEventListener('click', function() {
+            if (!isChecked) return; // Защита: ждем пока отработает проверка или таймер
+
+            this.style.display = 'none';
+            
+            // Если AR поддерживается аппаратно, пытаемся запустить камеру
+            if (arSupported && scene.enterAR) {
+                scene.enterAR(); 
+            } else {
+                // Иначе просто переходим в Fullscreen (если браузер разрешает)
+                try { document.documentElement.requestFullscreen().catch(()=>{}); } catch (e) {}
+            }
+        });
+
+        // Возвращаем заставку при выходе из VR/AR режима
+        scene.addEventListener('exit-vr', () => {
+            document.getElementById('splash-screen').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
