@@ -3,42 +3,76 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Museum Dev Lab | AR Gallery</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Museum Dev Lab | AR Gallery v1.6</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
-        .a-canvas { position: fixed !important; top: 0; left: 0; }
-        /* Кнопка входа в AR/VR */
-        .a-enter-vr { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+        html, body { 
+            width: 100%; height: 100%; height: -webkit-fill-available; 
+            overflow: hidden; position: fixed; background-color: #000; 
+        }
+        .a-canvas {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100% !important;
+            height: -webkit-fill-available !important;
+        }
+        
+        /* Панель диагностики AR поверх 3D-сцены */
+        #ar-debugger {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #4facfe;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 9999;
+            pointer-events: none;
+        }
     </style>
 
     <script>
-        // Компонент для переключения режима AR/VR
+        // Убиваем старые кэши Service Workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+
+        // Компонент переключения видимости окружения для AR
         AFRAME.registerComponent('ar-manager', {
             init: function () {
-                this.el.sceneEl.addEventListener('enter-vr', () => {
-                    if (this.el.sceneEl.is('ar-mode')) {
-                        // Прячем небо и пол, когда входим в дополненную реальность
-                        document.querySelector('a-sky').setAttribute('visible', 'false');
+                const sceneEl = this.el.sceneEl;
+                
+                sceneEl.addEventListener('enter-vr', () => {
+                    if (sceneEl.is('ar-mode')) {
+                        // В AR прячем виртуальное небо, купол и пол, чтобы видеть реальную комнату
+                        document.querySelector('#sky').setAttribute('visible', 'false');
+                        document.querySelector('#dome').setAttribute('visible', 'false');
                         document.querySelector('#virtual-floor').setAttribute('visible', 'false');
-                        document.querySelector('a-sphere').setAttribute('visible', 'false'); // купол
                     }
                 });
-                this.el.sceneEl.addEventListener('exit-vr', () => {
-                    // Возвращаем всё назад при выходе
-                    document.querySelector('a-sky').setAttribute('visible', 'true');
+                
+                sceneEl.addEventListener('exit-vr', () => {
+                    // Возвращаем всё при выходе
+                    document.querySelector('#sky').setAttribute('visible', 'true');
+                    document.querySelector('#dome').setAttribute('visible', 'true');
                     document.querySelector('#virtual-floor').setAttribute('visible', 'true');
-                    document.querySelector('a-sphere').setAttribute('visible', 'true');
                 });
             }
         });
     </script>
 </head>
 <body>
+
+    <div id="ar-debugger">AR Status: Checking...</div>
 
     <a-scene 
         ar-manager
@@ -48,20 +82,30 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=2">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=2">
-            <img id="floor-col" src="textures/floor_color.jpg?v=2">
+            <img id="wall-col" src="textures/wall_color.jpg?v=3">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=3">
+            <img id="floor-col" src="textures/floor_color.jpg?v=3">
         </a-assets>
 
-        <a-sky color="#050505"></a-sky>
+        <a-sky id="sky" color="#050505"></a-sky>
+        
         <a-sphere id="dome" position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
                   material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
 
         <a-circle id="virtual-floor" position="0 0.01 0" radius="6" rotation="-90 0 0" 
                   material="src: #floor-col; roughness: 0.1; metalness: 0.6;"></a-circle>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
-        <a-light type="point" position="0 4 0" intensity="0.8" distance="15"></a-light>
+        <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
+                  material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
+
+        <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+        <a-light type="point" position="0 4 -2.3" intensity="0.5" distance="12"></a-light>
+        <a-light type="point" position="0 4 0" intensity="0.6" distance="12"></a-light>
+        <a-light type="point" position="0 4 2.3" intensity="0.5" distance="12"></a-light>
+
+        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111">
+            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.2" angle="25" color="#4facfe"></a-light>
+        </a-cylinder>
 
         <a-entity id="rotunda-gallery"></a-entity>
 
@@ -71,6 +115,10 @@
             </a-entity>
         </a-entity>
 
+        <a-circle class="checkpoint" position="0 0.05 3" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="-2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+
     </a-scene>
 
     <script>
@@ -79,6 +127,7 @@
         const radius = 5.5; 
         const count = 12;
 
+        // Генерация стен
         scene.addEventListener('loaded', () => {
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
@@ -94,14 +143,56 @@
                     <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=2" width="0.6" height="0.84" position="0 0 0.03"
-                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
+                        <a-image src="assets/art${i+1}.jpg?v=3" width="0.6" height="0.84" position="0 0 0.03"
+                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                         <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
                                material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
                     </a-entity>
                 `;
                 gallery.appendChild(segment);
             }
+            setTimeout(forceResize, 300);
+        });
+
+        // Фикс вьюпорта
+        function forceResize() {
+            window.scrollTo(0, 0);
+            if (scene && scene.canvas) {
+                scene.canvas.style.left = "0px";
+                scene.canvas.style.width = window.innerWidth + 'px';
+                scene.canvas.style.height = window.innerHeight + 'px';
+            }
+        }
+
+        document.body.addEventListener('touchstart', () => {
+            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().then(forceResize).catch(() => {});
+            }
+        }, { once: true });
+
+        window.addEventListener('orientationchange', () => setTimeout(forceResize, 500));
+        window.addEventListener('resize', forceResize);
+
+        // ДИАГНОСТИКА AR: Проверяем, отдаст ли браузер доступ к камере
+        window.addEventListener('DOMContentLoaded', () => {
+            const statusUi = document.getElementById('ar-debugger');
+            if (navigator.xr) {
+                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                    if (supported) {
+                        statusUi.innerText = "AR Status: READY [OK]";
+                        statusUi.style.color = "#0f0"; // Зеленый
+                    } else {
+                        statusUi.innerText = "AR Status: NOT SUPPORTED (Check ARCore/HTTPS)";
+                        statusUi.style.color = "#f00"; // Красный
+                    }
+                });
+            } else {
+                statusUi.innerText = "AR Status: WebXR API MISSING (Use Chrome)";
+                statusUi.style.color = "#f00";
+            }
+            
+            // Прячем плашку через 10 секунд, чтобы не мешала
+            setTimeout(() => { statusUi.style.display = 'none'; }, 10000);
         });
     </script>
 </body>
