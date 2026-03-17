@@ -3,37 +3,38 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Museum Dev Lab | Hall of Crossroads</title>
+    <title>Museum Dev Lab | Clean PBR Hall</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
-        /* Фиксы для Android Chrome */
-        * { margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { 
             width: 100%; height: 100%; height: -webkit-fill-available; 
             overflow: hidden; position: fixed; background-color: #050505; 
         }
-        canvas.a-canvas {
-            width: 100% !important; height: 100% !important;
-            top: 0 !important; left: 0 !important; position: absolute !important;
+        /* Фикс для принудительного растягивания холста */
+        .a-canvas {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100% !important;
+            height: -webkit-fill-available !important;
         }
+        .a-enter-vr { display: none !important; }
     </style>
 </head>
 <body>
 
     <a-scene 
-        renderer="colorManagement: true; exposure: 1.2; antialias: true; precision: medium;"
+        renderer="colorManagement: true; exposure: 1.1; antialias: true; precision: medium;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false"
         vr-mode-ui="enabled: false">
 
-        <a-assets id="assets-list">
+        <a-assets timeout="1000">
             <img id="floor-col" src="textures/floor_color.jpg">
             <img id="floor-nor" src="textures/floor_normal.jpg">
-            <img id="floor-rough" src="textures/floor_roughness.jpg"> 
-            
             <img id="wall-col" src="textures/wall_color.jpg">
             <img id="wall-nor" src="textures/wall_normal.jpg">
         </a-assets>
@@ -41,32 +42,29 @@
         <a-sky color="#050505"></a-sky>
 
         <a-sphere position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
-                  material="color: #4facfe; side: back; wireframe: true; opacity: 0.15">
-        </a-sphere>
+                  material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
 
         <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
-        <a-light type="point" position="0 4 -2.5" intensity="0.6" distance="12" color="#fff"></a-light>
-        <a-light type="point" position="0 4 0" intensity="0.8" distance="15" color="#fff"></a-light>
-        <a-light type="point" position="0 4 2.5" intensity="0.6" distance="12" color="#fff"></a-light>
+        <a-light type="point" position="0 4 -2.3" intensity="0.5" distance="12"></a-light>
+        <a-light type="point" position="0 4 0" intensity="0.6" distance="12"></a-light>
+        <a-light type="point" position="0 4 2.3" intensity="0.5" distance="12"></a-light>
 
         <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
                   material="src: #floor-col; 
                             normalMap: #floor-nor; 
-                            normalScale: 0.3 0.3;
-                            roughnessMap: #floor-rough;
-                            roughness: 0.15; 
-                            metalness: 0.5;">
+                            normalScale: 0.2 0.2;
+                            roughness: 0.1; 
+                            metalness: 0.6;">
         </a-circle>
 
         <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
-                  material="color: #ffffff; shader: standard; roughness: 1; metalness: 0;">
-        </a-circle>
+                  material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
 
-        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111" metalness="0.8" roughness="0.2">
-            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.5" angle="20" penumbra="0.5" color="#4facfe"></a-light>
+        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111">
+            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.2" angle="25" color="#4facfe"></a-light>
         </a-cylinder>
 
-        <a-entity id="rotunda-content"></a-entity>
+        <a-entity id="rotunda-gallery"></a-entity>
 
         <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false; touchEnabled: true;">
@@ -77,19 +75,17 @@
         <a-circle class="checkpoint" position="0 0.05 3" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
         <a-circle class="checkpoint" position="2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
         <a-circle class="checkpoint" position="-2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.05 0" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 
     <script>
-        const gallery = document.querySelector('#rotunda-content');
+        const gallery = document.querySelector('#rotunda-gallery');
         const scene = document.querySelector('a-scene');
-        const radius = 5.5; // Расстояние от центра до стен
-        const count = 12;  // Количество сегментов/картин
+        const radius = 5.5; 
+        const count = 12;
 
         scene.addEventListener('loaded', () => {
             for (let i = 0; i < count; i++) {
-                // Вычисляем позицию по кругу
                 const angle = (i / count) * Math.PI * 2;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
@@ -99,32 +95,37 @@
                 segment.setAttribute('position', `${x} 1.75 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
-                // Геометрия сегмента стены и картины
                 segment.innerHTML = `
-                    <a-plane width="3" height="3.5" 
-                             material="src: #wall-col; normalMap: #wall-nor; roughness: 1; metalness: 0;">
-                    </a-plane>
-                    
+                    <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
                         <a-image src="assets/art${i+1}.jpg" width="0.6" height="0.84" position="0 0 0.03"
                                  material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
-                        
-                        <a-box width="0.7" height="0.02" depth="0.02" position="0 -0.5 0.02" color="#4facfe"
+                        <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.45 0.02" color="#4facfe"
                                material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
                     </a-entity>
                 `;
                 gallery.appendChild(segment);
             }
-            
-            // Фикс для корректного отображения на Android
-            setTimeout(() => { scene.resize(); }, 500);
+            setTimeout(forceResize, 500);
         });
 
-        // Вход в Fullscreen для скрытия адресной строки
-        document.body.addEventListener('click', function() {
-            if (document.documentElement.requestFullscreen) {
+        function forceResize() {
+            window.scrollTo(0, 0);
+            if (scene) {
+                scene.resize();
+                const canvas = scene.canvas;
+                if (canvas) {
+                    canvas.style.height = window.innerHeight + 'px';
+                    canvas.style.width = window.innerWidth + 'px';
+                }
+            }
+        }
+
+        document.body.addEventListener('click', () => {
+            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
+                setTimeout(forceResize, 500);
             }
         }, { once: true });
     </script>
