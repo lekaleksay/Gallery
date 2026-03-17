@@ -3,47 +3,37 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Museum Dev Lab | Final Boss v2</title>
+    <title>Museum Dev Lab | AR Gallery</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { 
-            width: 100%; height: 100%; height: -webkit-fill-available; 
-            overflow: hidden; position: fixed; 
-            /* Если полоса не уходит, сделаем её хотя бы незаметной */
-            background-color: #050505; 
-        }
-        .a-canvas {
-            position: fixed !important;
-            top: 0 !important; left: 0 !important;
-            width: 100% !important; height: 100% !important;
-        }
-        /* Прячем кнопку VR, которая часто создает пустую область снизу или сбоку */
-        .a-enter-vr { display: none !important; }
+        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
+        .a-canvas { position: fixed !important; top: 0; left: 0; }
+        /* Кнопка входа в AR/VR */
+        .a-enter-vr { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
     </style>
 
     <script>
-        // Кастомный компонент для принудительного ресайза на Android
-        AFRAME.registerComponent('mobile-fix', {
+        // Компонент для переключения режима AR/VR
+        AFRAME.registerComponent('ar-manager', {
             init: function () {
-                this.resize = this.resize.bind(this);
-                window.addEventListener('resize', this.resize);
-                window.addEventListener('orientationchange', () => setTimeout(this.resize, 500));
-                this.resize();
-            },
-            resize: function () {
-                let scene = this.el.sceneEl;
-                let canvas = scene.canvas;
-                if (canvas) {
-                    canvas.style.width = window.innerWidth + 'px';
-                    canvas.style.height = window.innerHeight + 'px';
-                    if (scene.renderer) {
-                        scene.renderer.setSize(window.innerWidth, window.innerHeight, false);
+                this.el.sceneEl.addEventListener('enter-vr', () => {
+                    if (this.el.sceneEl.is('ar-mode')) {
+                        // Прячем небо и пол, когда входим в дополненную реальность
+                        document.querySelector('a-sky').setAttribute('visible', 'false');
+                        document.querySelector('#virtual-floor').setAttribute('visible', 'false');
+                        document.querySelector('a-sphere').setAttribute('visible', 'false'); // купол
                     }
-                }
+                });
+                this.el.sceneEl.addEventListener('exit-vr', () => {
+                    // Возвращаем всё назад при выходе
+                    document.querySelector('a-sky').setAttribute('visible', 'true');
+                    document.querySelector('#virtual-floor').setAttribute('visible', 'true');
+                    document.querySelector('a-sphere').setAttribute('visible', 'true');
+                });
             }
         });
     </script>
@@ -51,30 +41,27 @@
 <body>
 
     <a-scene 
-        mobile-fix
+        ar-manager
+        webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local-floor"
         renderer="colorManagement: true; exposure: 1.1; antialias: true;"
         light="defaultLightsEnabled: false"
-        loading-screen="enabled: false"
-        vr-mode-ui="enabled: false">
+        loading-screen="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="floor-col" src="textures/floor_color.jpg">
-            <img id="floor-nor" src="textures/floor_normal.jpg">
-            <img id="wall-col" src="textures/wall_color.jpg">
-            <img id="wall-nor" src="textures/wall_normal.jpg">
+            <img id="wall-col" src="textures/wall_color.jpg?v=2">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=2">
+            <img id="floor-col" src="textures/floor_color.jpg?v=2">
         </a-assets>
 
         <a-sky color="#050505"></a-sky>
-
-        <a-sphere position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
+        <a-sphere id="dome" position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
                   material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
-        <a-light type="point" position="0 4 0" intensity="0.8" distance="15"></a-light>
+        <a-circle id="virtual-floor" position="0 0.01 0" radius="6" rotation="-90 0 0" 
+                  material="src: #floor-col; roughness: 0.1; metalness: 0.6;"></a-circle>
 
-        <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
-                  material="src: #floor-col; normalMap: #floor-nor; roughness: 0.1; metalness: 0.6;">
-        </a-circle>
+        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+        <a-light type="point" position="0 4 0" intensity="0.8" distance="15"></a-light>
 
         <a-entity id="rotunda-gallery"></a-entity>
 
@@ -107,22 +94,15 @@
                     <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg" width="0.6" height="0.84" position="0 0 0.03"
+                        <a-image src="assets/art${i+1}.jpg?v=2" width="0.6" height="0.84" position="0 0 0.03"
                                  material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
+                        <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
+                               material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
                     </a-entity>
                 `;
                 gallery.appendChild(segment);
             }
         });
-
-        // ПРИНУДИТЕЛЬНЫЙ FULLSCREEN: самый эффективный способ убрать полосы на Android
-        document.body.addEventListener('click', function() {
-            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
-                });
-            }
-        }, { once: true });
     </script>
 </body>
 </html>
