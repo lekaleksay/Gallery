@@ -3,17 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gallery Fix | Museum Dev Lab</title>
+    <title>Gray Gallery PBR | Museum Dev Lab</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #222; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #111; }
     </style>
 </head>
 <body>
 
     <a-scene 
-        renderer="colorManagement: true; exposure: 0.8; antialias: false;"
+        renderer="colorManagement: true; exposure: 1.0; antialias: false;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false"
         vr-mode-ui="enabled: false">
@@ -21,33 +21,33 @@
         <a-assets>
             <img id="floor-col" src="textures/floor_color.jpg">
             <img id="floor-nor" src="textures/floor_normal.jpg">
+             <img id="wall-col" src="textures/wall_color.jpg">
             <img id="wall-nor" src="textures/wall_normal.jpg">
-        </a-assets>
+            </a-assets>
 
-        <a-sky color="#cccccc"></a-sky>
+        <a-sky color="#222"></a-sky>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
-        <a-light type="point" position="0 2.5 0" intensity="0.3" distance="10"></a-light>
+        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+        <a-light type="point" position="0 2.8 0" intensity="0.4" distance="12"></a-light>
 
         <a-box position="0 1.5 0" width="4" height="3" depth="7" 
-               material="color: #eeeeee; shader: standard; normalMap: #wall-nor; side: back;">
+               material="src: #wall-col; shader: standard; normalMap: #wall-nor; normalTextureRepeat: 4 2; roughness: 1.0; side: back;">
         </a-box>
 
         <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="7" 
-                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.8;">
-        </a-plane>
+                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.8;"></a-plane>
 
         <a-entity id="gallery-walls"></a-entity>
 
         <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false">
-                <a-cursor color="#555" raycaster="objects: .checkpoint"></a-cursor>
+                <a-cursor color="#fff" raycaster="objects: .checkpoint"></a-cursor>
             </a-entity>
         </a-entity>
 
-        <a-circle class="checkpoint" position="0 0.02 2" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 -2" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 -2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 
@@ -64,10 +64,7 @@
             { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 }, { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
         ];
 
-        // Ждем полной готовности сцены
         scene.addEventListener('loaded', function () {
-            console.log("Scene Ready! Spawning paintings...");
-            
             coords.forEach((pos, i) => {
                 const id = i + 1;
                 const entity = document.createElement('a-entity');
@@ -77,11 +74,15 @@
                 entity.innerHTML = `
                     <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
                     <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
-                             material="shader: standard; emissive: #fff; emissiveIntensity: 0.1">
-                    </a-image>
+                             material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                 `;
                 gallery.appendChild(entity);
             });
+        });
+
+        // Форсированный ресайз для Android
+        window.addEventListener('load', () => {
+            setTimeout(() => { scene.resize(); }, 500);
         });
     </script>
 </body>
