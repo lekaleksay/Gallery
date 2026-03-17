@@ -12,42 +12,18 @@
 </head>
 <body>
 
-    <a-scene 
-        renderer="colorManagement: true; antialias: true; precision: medium;"
-        light="defaultLightsEnabled: false"
-        vr-mode-ui="enabled: false">
+<a-scene 
+    renderer="colorManagement: true; exposure: 0.5;" 
+    background="color: #333"
+    light="defaultLightsEnabled: false">
 
-        <a-assets id="assets-list">
-            <img id="floor-col" src="textures/floor_color.jpg">
-            <img id="floor-nor" src="textures/floor_normal.jpg">
-            <img id="wall-nor" src="textures/wall_normal.jpg">
-            </a-assets>
+    <a-light type="ambient" color="#fff" intensity="0.3"></a-light>
 
-        <a-sky color="#ffffff"></a-sky>
-
-        <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
-        <a-light type="point" position="0 2.8 0" intensity="0.4" distance="12"></a-light>
-
-        <a-box position="0 1.5 0" width="4" height="3" depth="7" 
-               material="color: #ffffff; shader: standard; normalMap: #wall-nor; normalTextureRepeat: 4 2; side: back; roughness: 1;">
-        </a-box>
-
-        <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="7" 
-                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.7;"></a-plane>
-
-        <a-entity id="gallery-walls"></a-entity>
-
-        <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
-            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false">
-                <a-cursor color="#555" raycaster="objects: .checkpoint"></a-cursor>
-            </a-entity>
-        </a-entity>
-
-        <a-circle class="checkpoint" position="0 0.05 2" radius="0.15" color="#000" opacity="0.1" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.05 0" radius="0.15" color="#000" opacity="0.1" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.05 -2" radius="0.15" color="#000" opacity="0.1" rotation="-90 0 0"></a-circle>
-
-    </a-scene>
+    <a-box position="0 1.5 0" width="4" height="3" depth="7" 
+           material="color: #888; shader: standard; side: back;"></a-box>
+    
+    <a-box position="0 1 -2" color="red"></a-box>
+</a-scene>
 
     <script>
         const gallery = document.querySelector('#gallery-walls');
