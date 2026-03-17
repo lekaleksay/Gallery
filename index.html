@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | AR Auto-Launch</title>
+    <title>Museum Dev Lab | 6DoF Walkable VR</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
@@ -20,11 +20,9 @@
             width: 100vw !important; height: 100% !important;
             height: -webkit-fill-available !important;
         }
-        
-        /* Прячем вообще все дефолтные кнопки VR/AR */
         .a-enter-vr { display: none !important; }
 
-        /* Наш кастомный стартовый экран */
+        /* Стартовый экран */
         #splash-screen {
             position: fixed;
             top: 0; left: 0;
@@ -40,21 +38,9 @@
             cursor: pointer;
         }
 
-        #splash-screen h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        /* Анимация пульсации для текста-подсказки */
-        #splash-screen p {
-            color: #4facfe;
-            font-size: 1.2rem;
-            animation: pulse 1.5s infinite alternate;
-        }
-
+        #splash-screen h1 { font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; text-align: center; }
+        #splash-screen p { color: #4facfe; font-size: 1.1rem; animation: pulse 1.5s infinite alternate; text-align: center; padding: 0 20px; }
+        
         @keyframes pulse {
             from { opacity: 0.4; }
             to { opacity: 1; }
@@ -65,7 +51,7 @@
 
     <div id="splash-screen">
         <h1>Museum Dev Lab</h1>
-        <p>[ Коснитесь экрана для входа в AR ]</p>
+        <p>[ Нажмите, чтобы войти в зал ]<br><br><span style="font-size: 0.8rem; color: #888;">Вы сможете ходить по галерее, перемещаясь физически</span></p>
     </div>
 
     <a-scene 
@@ -75,16 +61,18 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=4">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=4">
-            <img id="floor-col" src="textures/floor_color.jpg?v=4">
+            <img id="wall-col" src="textures/wall_color.jpg?v=5">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=5">
+            <img id="floor-col" src="textures/floor_color.jpg?v=5">
         </a-assets>
 
         <a-sky id="sky" color="#050505"></a-sky>
+        
         <a-sphere id="dome" position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
                   material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
+
         <a-circle id="virtual-floor" position="0 0.01 0" radius="6" rotation="-90 0 0" 
-                  material="src: #floor-col; roughness: 0.1; metalness: 0.6;"></a-circle>
+                  material="src: #floor-col; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;"></a-circle>
 
         <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
                   material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
@@ -94,7 +82,16 @@
         <a-light type="point" position="0 4 0" intensity="0.6" distance="12"></a-light>
         <a-light type="point" position="0 4 2.3" intensity="0.5" distance="12"></a-light>
 
+        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111">
+            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.2" angle="25" color="#4facfe"></a-light>
+        </a-cylinder>
+
         <a-entity id="rotunda-gallery"></a-entity>
+
+        <a-entity id="rig" position="0 0 0">
+            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false; touchEnabled: true;">
+            </a-entity>
+        </a-entity>
 
     </a-scene>
 
@@ -104,7 +101,7 @@
         const radius = 5.5; 
         const count = 12;
 
-        // 1. Генерация экспозиции
+        // Генерация картин
         scene.addEventListener('loaded', () => {
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
@@ -120,7 +117,7 @@
                     <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=4" width="0.6" height="0.84" position="0 0 0.03"
+                        <a-image src="assets/art${i+1}.jpg?v=5" width="0.6" height="0.84" position="0 0 0.03"
                                  material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                         <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
                                material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
@@ -130,37 +127,23 @@
             }
         });
 
-        // 2. Логика скрытия окружения в AR
-        scene.addEventListener('enter-vr', () => {
-            if (scene.is('ar-mode')) {
-                document.querySelector('#sky').setAttribute('visible', 'false');
-                document.querySelector('#dome').setAttribute('visible', 'false');
-                document.querySelector('#virtual-floor').setAttribute('visible', 'false');
-            }
-        });
-        
+        // Возврат сплэш-экрана при выходе
         scene.addEventListener('exit-vr', () => {
-            document.querySelector('#sky').setAttribute('visible', 'true');
-            document.querySelector('#dome').setAttribute('visible', 'true');
-            document.querySelector('#virtual-floor').setAttribute('visible', 'true');
-            // Если вышли из AR, возвращаем сплэш-экран
             document.getElementById('splash-screen').style.display = 'flex';
         });
 
-        // 3. Главная магия: Запуск AR по клику на сплэш-экран
+        // Запуск сессии при клике
         document.getElementById('splash-screen').addEventListener('click', function() {
-            // Прячем меню
-            this.style.display = 'none';
+            this.style.display = 'none'; // Прячем стартовый экран
             
-            // Фикс вьюпорта (Fullscreen)
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(()=>{});
             }
 
-            // Принудительно задаем режим AR и входим в него
+            // Запускаем AR-режим для получения физического трекинга шагов
             if (scene.systems.webxr) {
                 scene.systems.webxr.sessionConfiguration.mode = 'immersive-ar';
-                scene.enterVR(); // В A-Frame эта команда запускает выбранный XR-режим
+                scene.enterVR(); 
             }
         });
     </script>
