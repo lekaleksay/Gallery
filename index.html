@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Video Ceiling</title>
+    <title>Museum Dev Lab | Gradient Hall</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -38,24 +38,22 @@
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false">
 
-        <a-assets timeout="10000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=16">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=16">
-            <img id="floor-col" src="textures/floor_color.jpg?v=16">
-            <img id="floor-nor" src="textures/floor_normal.jpg?v=16">
-            
+        <a-assets timeout="10000" id="scene-assets">
+            <img id="floor-col" src="textures/floor_color.jpg?v=17">
+            <img id="floor-nor" src="textures/floor_normal.jpg?v=17">
             <video id="ceiling-vid" src="assets/ceiling.mp4" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-sky color="#000"></a-sky>
 
         <a-circle position="0 0.01 0" radius="10" rotation="-90 0 0" 
-                  material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.1 0.1; roughness: 0.1; metalness: 0.7; transparent: true; opacity: 0.85;"></a-circle>
+                  material="src: #floor-col; repeat: 12 12; normalMap: #floor-nor; normalScale: 0.1 0.1; roughness: 0.1; metalness: 0.7; transparent: true; opacity: 0.85;"></a-circle>
         
-        <a-circle position="0 6 0" radius="10" rotation="90 0 0" 
+        <a-circle position="0 6 0" radius="8.2" rotation="90 0 0" 
                   material="src: #ceiling-vid; shader: flat; color: #888888;"></a-circle>
 
         <a-light type="ambient" color="#ffffff" intensity="0.1"></a-light>
+        
         <a-entity id="gallery-container"></a-entity>
         
         <a-entity id="rig" position="0 0 0">
@@ -70,14 +68,41 @@
         const count = 12;      
         const radius = 7.5;    
 
+        // ==========================================
+        // ГЕНЕРАТОР ГРАДИЕНТА ДЛЯ СТЕН
+        // ==========================================
+        function createGradientTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            // Градиент сверху вниз (от 0 до 512)
+            const grd = ctx.createLinearGradient(0, 0, 0, 512);
+            grd.addColorStop(0, "#253758"); // Верх: глубокий синий
+            grd.addColorStop(1, "#000000"); // Низ: черный
+            
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Добавляем сгенерированную картинку в a-assets
+            const img = document.createElement('img');
+            img.id = 'gradient-wall';
+            img.src = canvas.toDataURL();
+            document.getElementById('scene-assets').appendChild(img);
+        }
+        createGradientTexture();
+
+        // ==========================================
+        // КРАШ-ЛОВУШКА И ПРОВЕРКА AR
+        // ==========================================
         scene.addEventListener('loaded', function () {
             const canvas = document.querySelector('.a-canvas');
             if (canvas) {
                 canvas.addEventListener('webglcontextlost', function (event) {
                     event.preventDefault();
-                    const splash = document.getElementById('splash-screen');
-                    splash.style.display = 'flex';
-                    splash.innerHTML = `<h1 style="color: #ff4444;">CRASH</h1><p>Браузеру не хватило видеопамяти.</p>`;
+                    document.getElementById('splash-screen').style.display = 'flex';
+                    document.getElementById('splash-screen').innerHTML = `<h1 style="color: #ff4444;">CRASH</h1><p>Браузеру не хватило видеопамяти.</p>`;
                 }, false);
             }
         });
@@ -102,6 +127,9 @@
         } else { finishCheck(false); }
         setTimeout(() => { finishCheck(false); }, 1500);
 
+        // ==========================================
+        // ГЕНЕРАЦИЯ ЗАЛА
+        // ==========================================
         scene.addEventListener('loaded', () => {
             let artCounter = 1;
             for (let i = 0; i < count; i++) {
@@ -117,19 +145,23 @@
                 let innerHTML = '';
 
                 if (i % 2 === 0) {
+                    // ЭКРАН И ЕГО ОТРАЖЕНИЕ
                     innerHTML = `
                         <a-plane width="4.05" height="6" position="0 0 0"
-                                 material="src: assets/art${artCounter}.jpg?v=16; shader: flat; color: #eeeeee;"></a-plane>
+                                 material="src: assets/art${artCounter}.jpg?v=17; shader: flat; color: #eeeeee;"></a-plane>
                         <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
-                                 material="src: assets/art${artCounter}.jpg?v=16; shader: flat; color: #888888;"></a-plane>
+                                 material="src: assets/art${artCounter}.jpg?v=17; shader: flat; color: #888888;"></a-plane>
                     `;
                     artCounter++;
                 } else {
+                    // ГРАДИЕНТНАЯ СТЕНА И ЕЕ ОТРАЖЕНИЕ
+                    // Используем сгенерированный ID #gradient-wall и shader: flat, чтобы градиент светился сам
                     innerHTML = `
                         <a-plane width="4.05" height="6" position="0 0 0"
-                                 material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;"></a-plane>
+                                 material="src: #gradient-wall; shader: flat;"></a-plane>
+                        
                         <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
-                                 material="src: #wall-col; repeat: 2 3; shader: flat; color: #111111;"></a-plane>
+                                 material="src: #gradient-wall; shader: flat; color: #666666;"></a-plane>
                     `;
                 }
                 segment.innerHTML = innerHTML;
@@ -137,11 +169,13 @@
             }
         });
 
+        // ==========================================
+        // ЗАПУСК ПО КЛИКУ
+        // ==========================================
         document.getElementById('splash-screen').addEventListener('click', function() {
             if (!isChecked) return;
             this.style.display = 'none';
             
-            // ПРИНУДИТЕЛЬНЫЙ ЗАПУСК ВИДЕО ПОСЛЕ ТАПА
             const ceilingVideo = document.getElementById('ceiling-vid');
             if (ceilingVideo) {
                 ceilingVideo.play().catch(e => console.log("Видео не запустилось:", e));
