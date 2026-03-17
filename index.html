@@ -3,17 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Museum Dev Lab | Final Gallery 4x7</title>
+    <title>Museum Dev Lab | Hall of Crossroads</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
-        /* Ультимативный фикс для мобильных браузеров */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Фиксы для Android Chrome */
+        * { margin: 0; padding: 0; }
         html, body { 
             width: 100%; height: 100%; height: -webkit-fill-available; 
-            overflow: hidden; position: fixed; background-color: #111; 
+            overflow: hidden; position: fixed; background-color: #050505; 
         }
         canvas.a-canvas {
             width: 100% !important; height: 100% !important;
@@ -24,7 +24,7 @@
 <body>
 
     <a-scene 
-        renderer="colorManagement: true; exposure: 1.0; antialias: false; precision: medium;"
+        renderer="colorManagement: true; exposure: 1.2; antialias: true; precision: medium;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false"
         vr-mode-ui="enabled: false">
@@ -32,89 +32,99 @@
         <a-assets id="assets-list">
             <img id="floor-col" src="textures/floor_color.jpg">
             <img id="floor-nor" src="textures/floor_normal.jpg">
+            <img id="floor-rough" src="textures/floor_roughness.jpg"> 
+            
             <img id="wall-col" src="textures/wall_color.jpg">
             <img id="wall-nor" src="textures/wall_normal.jpg">
-            </a-assets>
+        </a-assets>
 
-        <a-sky color="#111"></a-sky>
+        <a-sky color="#050505"></a-sky>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
-        
-        <a-light type="point" position="0 2.8 -2.3" intensity="0.5" distance="10" decay="2"></a-light>
-        <a-light type="point" position="0 2.8 0" intensity="0.6" distance="12" decay="2"></a-light>
-        <a-light type="point" position="0 2.8 2.3" intensity="0.5" distance="10" decay="2"></a-light>
+        <a-sphere position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
+                  material="color: #4facfe; side: back; wireframe: true; opacity: 0.15">
+        </a-sphere>
 
-        <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="7" 
-                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.8;"></a-plane>
+        <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
+        <a-light type="point" position="0 4 -2.5" intensity="0.6" distance="12" color="#fff"></a-light>
+        <a-light type="point" position="0 4 0" intensity="0.8" distance="15" color="#fff"></a-light>
+        <a-light type="point" position="0 4 2.5" intensity="0.6" distance="12" color="#fff"></a-light>
 
-        <a-plane position="0 3 0" rotation="90 0 0" width="4" height="7" 
-                 material="color: #ffffff; shader: standard; roughness: 1; metalness: 0;"></a-plane>
+        <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
+                  material="src: #floor-col; 
+                            normalMap: #floor-nor; 
+                            normalScale: 0.3 0.3;
+                            roughnessMap: #floor-rough;
+                            roughness: 0.15; 
+                            metalness: 0.5;">
+        </a-circle>
 
-        <a-plane position="0 1.5 -3.5" rotation="0 0 0" width="4" height="3" 
-                 material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1.5; roughness: 1;"></a-plane>
-        
-        <a-plane position="0 1.5 3.5" rotation="0 180 0" width="4" height="3" 
-                 material="src: #wall-col; normalMap: #wall-nor; repeat: 2 1.5; roughness: 1;"></a-plane>
-        
-        <a-plane position="-2 1.5 0" rotation="0 90 0" width="7" height="3" 
-                 material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1.5; roughness: 1;"></a-plane>
-        
-        <a-plane position="2 1.5 0" rotation="0 -90 0" width="7" height="3" 
-                 material="src: #wall-col; normalMap: #wall-nor; repeat: 4 1.5; roughness: 1;"></a-plane>
+        <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
+                  material="color: #ffffff; shader: standard; roughness: 1; metalness: 0;">
+        </a-circle>
 
-        <a-entity id="gallery-content"></a-entity>
+        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111" metalness="0.8" roughness="0.2">
+            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.5" angle="20" penumbra="0.5" color="#4facfe"></a-light>
+        </a-cylinder>
+
+        <a-entity id="rotunda-content"></a-entity>
 
         <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false; touchEnabled: true;">
-                <a-cursor color="#fff" raycaster="objects: .checkpoint"></a-cursor>
+                <a-cursor color="#4facfe" raycaster="objects: .checkpoint"></a-cursor>
             </a-entity>
         </a-entity>
 
-        <a-circle class="checkpoint" position="0 0.05 2.5" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.05 0" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.05 -2.5" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.05 3" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="-2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.05 0" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 
     <script>
-        const gallery = document.querySelector('#gallery-content');
+        const gallery = document.querySelector('#rotunda-content');
         const scene = document.querySelector('a-scene');
+        const radius = 5.5; // Расстояние от центра до стен
+        const count = 12;  // Количество сегментов/картин
 
-        // Раскладка: 4 на левой, 4 на правой, 2 спереди, 2 сзади
-        const layout = [
-            { x: -1.98, z: -2.25, rot: 90 }, { x: -1.98, z: -0.75, rot: 90 },
-            { x: -1.98, z: 0.75,  rot: 90 }, { x: -1.98, z: 2.25,  rot: 90 },
-            { x: 1.98,  z: -2.25, rot: -90 }, { x: 1.98,  z: -0.75, rot: -90 },
-            { x: 1.98,  z: 0.75,  rot: -90 }, { x: 1.98,  z: 2.25,  rot: -90 },
-            { x: -0.8,  z: -3.48, rot: 0 }, { x: 0.8,   z: -3.48, rot: 0 },
-            { x: -0.8,  z: 3.48,  rot: 180 }, { x: 0.8,   z: 3.48,  rot: 180 }
-        ];
-
-        // Спавним экспонаты после готовности сцены
         scene.addEventListener('loaded', () => {
-            layout.forEach((pos, i) => {
-                const id = i + 1;
-                const item = document.createElement('a-entity');
-                item.setAttribute('position', `${pos.x} 1.6 ${pos.z}`);
-                item.setAttribute('rotation', `0 ${pos.rot} 0`);
+            for (let i = 0; i < count; i++) {
+                // Вычисляем позицию по кругу
+                const angle = (i / count) * Math.PI * 2;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const rotY = -(i / count) * 360 - 90;
+
+                const segment = document.createElement('a-entity');
+                segment.setAttribute('position', `${x} 1.75 ${z}`);
+                segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
-                item.innerHTML = `
-                    <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
-                    <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
-                             material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
+                // Геометрия сегмента стены и картины
+                segment.innerHTML = `
+                    <a-plane width="3" height="3.5" 
+                             material="src: #wall-col; normalMap: #wall-nor; roughness: 1; metalness: 0;">
+                    </a-plane>
+                    
+                    <a-entity position="0 -0.15 0.05">
+                        <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
+                        <a-image src="assets/art${i+1}.jpg" width="0.6" height="0.84" position="0 0 0.03"
+                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
+                        
+                        <a-box width="0.7" height="0.02" depth="0.02" position="0 -0.5 0.02" color="#4facfe"
+                               material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
+                    </a-entity>
                 `;
-                gallery.appendChild(item);
-            });
+                gallery.appendChild(segment);
+            }
             
-            // Финальный пинок рендереру
+            // Фикс для корректного отображения на Android
             setTimeout(() => { scene.resize(); }, 500);
         });
 
-        // Исправляем вьюпорт Chrome на Android при клике
+        // Вход в Fullscreen для скрытия адресной строки
         document.body.addEventListener('click', function() {
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
-                setTimeout(() => { scene.resize(); }, 300);
             }
         }, { once: true });
     </script>
