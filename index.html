@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gray Gallery PBR | Museum Dev Lab</title>
+    <title>Museum Dev Lab | Gray PBR</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     <style>
@@ -13,31 +13,33 @@
 <body>
 
     <a-scene 
-        renderer="colorManagement: true; exposure: 1.0; antialias: false;"
+        renderer="colorManagement: true; exposure: 1.0; antialias: false; precision: medium;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false"
         vr-mode-ui="enabled: false">
 
-        <a-assets>
+        <a-assets id="assets-list">
             <img id="floor-col" src="textures/floor_color.jpg">
             <img id="floor-nor" src="textures/floor_normal.jpg">
-             <img id="wall-col" src="textures/wall_color.jpg">
+            <img id="wall-col" src="textures/wall_color.jpg">
             <img id="wall-nor" src="textures/wall_normal.jpg">
             </a-assets>
 
         <a-sky color="#222"></a-sky>
 
         <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
-        <a-light type="point" position="0 2.8 0" intensity="0.4" distance="12"></a-light>
+        <a-light type="point" position="0 2.8 -2.3" intensity="0.3" distance="8"></a-light>
+        <a-light type="point" position="0 2.8 0" intensity="0.4" distance="10"></a-light>
+        <a-light type="point" position="0 2.8 2.3" intensity="0.3" distance="8"></a-light>
 
         <a-box position="0 1.5 0" width="4" height="3" depth="7" 
-               material="src: #wall-col; shader: standard; normalMap: #wall-nor; normalTextureRepeat: 4 2; roughness: 1.0; side: back;">
+               material="src: #wall-col; normalMap: #wall-nor; normalTextureRepeat: 4 2; roughness: 1.0; side: back;">
         </a-box>
 
         <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="7" 
                  material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.8;"></a-plane>
 
-        <a-entity id="gallery-walls"></a-entity>
+        <a-entity id="gallery-content"></a-entity>
 
         <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false">
@@ -45,45 +47,56 @@
             </a-entity>
         </a-entity>
 
-        <a-circle class="checkpoint" position="0 0.02 2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="0 0.02 -2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.05 2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.05 0" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.05 -2" radius="0.15" color="#fff" opacity="0.2" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 
     <script>
+        const gallery = document.querySelector('#gallery-content');
         const scene = document.querySelector('a-scene');
-        const gallery = document.querySelector('#gallery-walls');
 
-        const coords = [
-            { x: -1.97, y: 1.6, z: -2.25, rot: 90 }, { x: -1.97, y: 1.6, z: -0.75, rot: 90 },
-            { x: -1.97, y: 1.6, z: 0.75,  rot: 90 }, { x: -1.97, y: 1.6, z: 2.25,  rot: 90 },
-            { x: 1.97,  y: 1.6, z: -2.25, rot: -90 }, { x: 1.97,  y: 1.6, z: -0.75, rot: -90 },
-            { x: 1.97,  y: 1.6, z: 0.75,  rot: -90 }, { x: 1.97,  y: 1.6, z: 2.25,  rot: -90 },
-            { x: -0.8,  y: 1.6, z: -3.47, rot: 0 }, { x: 0.8,   y: 1.6, z: -3.47, rot: 0 },
-            { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 }, { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
+        // Координаты для 12 картин формата A1 (0.6 x 0.84м)
+        const layout = [
+            // Левая стена (x: -1.97)
+            { x: -1.97, z: -2.25, rot: 90 }, { x: -1.97, z: -0.75, rot: 90 },
+            { x: -1.97, z: 0.75,  rot: 90 }, { x: -1.97, z: 2.25,  rot: 90 },
+            // Правая стена (x: 1.97)
+            { x: 1.97,  z: -2.25, rot: -90 }, { x: 1.97,  z: -0.75, rot: -90 },
+            { x: 1.97,  z: 0.75,  rot: -90 }, { x: 1.97,  z: 2.25,  rot: -90 },
+            // Передняя стена (z: -3.47)
+            { x: -0.8,  z: -3.47, rot: 0 }, { x: 0.8,   z: -3.47, rot: 0 },
+            // Задняя стена (z: 3.47)
+            { x: -0.8,  z: 3.47,  rot: 180 }, { x: 0.8,   z: 3.47,  rot: 180 }
         ];
 
-        scene.addEventListener('loaded', function () {
-            coords.forEach((pos, i) => {
+        // Генерируем экспозицию после загрузки сцены
+        scene.addEventListener('loaded', () => {
+            layout.forEach((pos, i) => {
                 const id = i + 1;
-                const entity = document.createElement('a-entity');
-                entity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-                entity.setAttribute('rotation', `0 ${pos.rot} 0`);
+                const item = document.createElement('a-entity');
+                item.setAttribute('position', `${pos.x} 1.6 ${pos.z}`);
+                item.setAttribute('rotation', `0 ${pos.rot} 0`);
                 
-                entity.innerHTML = `
+                item.innerHTML = `
                     <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
                     <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
                              material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                 `;
-                gallery.appendChild(entity);
+                gallery.appendChild(item);
             });
-        });
-
-        // Форсированный ресайз для Android
-        window.addEventListener('load', () => {
+            
+            // Фикс ресайза для Android
             setTimeout(() => { scene.resize(); }, 500);
         });
+
+        // Полноэкранный режим по клику для Android
+        document.body.addEventListener('click', function() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
