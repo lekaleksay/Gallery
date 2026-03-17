@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Monumental Screens</title>
+    <title>Museum Dev Lab | Mirror Floor Gallery</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -48,16 +48,16 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="10000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=14">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=14">
-            <img id="floor-col" src="textures/floor_color.jpg?v=14">
-            <img id="floor-nor" src="textures/floor_normal.jpg?v=14">
+            <img id="wall-col" src="textures/wall_color.jpg?v=15">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=15">
+            <img id="floor-col" src="textures/floor_color.jpg?v=15">
+            <img id="floor-nor" src="textures/floor_normal.jpg?v=15">
         </a-assets>
 
         <a-sky color="#000"></a-sky>
 
         <a-circle position="0 0.01 0" radius="10" rotation="-90 0 0" 
-                  material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.1 0.1; roughness: 0.1; metalness: 0.7;"></a-circle>
+                  material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.1 0.1; roughness: 0.1; metalness: 0.7; transparent: true; opacity: 0.85;"></a-circle>
         
         <a-circle position="0 6 0" radius="10" rotation="90 0 0" 
                   material="color: #010101; shader: standard; roughness: 1;"></a-circle>
@@ -76,10 +76,9 @@
         const gallery = document.querySelector('#gallery-container');
         const scene = document.querySelector('a-scene');
         
-        const count = 12;      // 12 стен
-        const radius = 7.5;    // Радиус зала
+        const count = 12;      
+        const radius = 7.5;    
 
-        // ПЕРЕХВАТЧИК КРАША ПАМЯТИ
         scene.addEventListener('loaded', function () {
             const canvas = document.querySelector('.a-canvas');
             if (canvas) {
@@ -92,7 +91,6 @@
             }
         });
 
-        // ПУЛЕНЕПРОБИВАЕМАЯ ПРОВЕРКА AR-УСТРОЙСТВА
         let isChecked = false;
         let arSupported = false;
 
@@ -111,12 +109,11 @@
         if (navigator.xr) {
             navigator.xr.isSessionSupported('immersive-ar').then((supported) => { finishCheck(supported); }).catch(() => { finishCheck(false); });
         } else { finishCheck(false); }
-
         setTimeout(() => { finishCheck(false); }, 1500);
 
-        // ГЕНЕРАЦИЯ ЗАЛА: Чередование стен и экранов
+        // ГЕНЕРАЦИЯ ЗАЛА: Верхний мир + Зазеркалье
         scene.addEventListener('loaded', () => {
-            let artCounter = 1; // Счетчик для картинок (от 1 до 6)
+            let artCounter = 1;
 
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
@@ -125,26 +122,31 @@
                 const rotY = -(i / count) * 360 - 90;
 
                 const segment = document.createElement('a-entity');
+                // Центр сегмента приподнят на 3 метра (так как высота стены 6м)
                 segment.setAttribute('position', `${x} 3 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
                 let innerHTML = '';
 
-                // Логика: если индекс четный (0, 2, 4, 6, 8, 10) — это Экран
                 if (i % 2 === 0) {
-                    // Используем shader: flat, чтобы картинка светилась в темноте как LED-панель.
-                    // color: #eeeeee немного приглушает максимальную яркость, чтобы не резало глаза.
                     innerHTML = `
-                        <a-plane width="4.05" height="6" 
-                                 material="src: assets/art${artCounter}.jpg?v=14; shader: flat; color: #eeeeee;">
+                        <a-plane width="4.05" height="6" position="0 0 0"
+                                 material="src: assets/art${artCounter}.jpg?v=15; shader: flat; color: #eeeeee;">
+                        </a-plane>
+
+                        <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
+                                 material="src: assets/art${artCounter}.jpg?v=15; shader: flat; color: #888888;">
                         </a-plane>
                     `;
                     artCounter++;
                 } else {
-                    // Иначе (1, 3, 5, 7, 9, 11) — это обычная бетонная стена
                     innerHTML = `
-                        <a-plane width="4.05" height="6" 
+                        <a-plane width="4.05" height="6" position="0 0 0"
                                  material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;">
+                        </a-plane>
+
+                        <a-plane width="4.05" height="6" position="0 -6 0" scale="1 -1 1"
+                                 material="src: #wall-col; repeat: 2 3; shader: flat; color: #111111;">
                         </a-plane>
                     `;
                 }
@@ -160,7 +162,6 @@
             this.style.display = 'none';
             if (arSupported && scene.enterAR) { scene.enterAR(); } else { try { document.documentElement.requestFullscreen().catch(()=>{}); } catch (e) {} }
         });
-
         scene.addEventListener('exit-vr', () => { document.getElementById('splash-screen').style.display = 'flex'; });
     </script>
 </body>
