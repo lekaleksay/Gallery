@@ -26,53 +26,31 @@
 </a-scene>
 
     <script>
-        const gallery = document.querySelector('#gallery-walls');
-        const assets = document.querySelector('#assets-list');
+       const gallery = document.querySelector('#gallery-walls');
 
-        // Координаты для 12 картин (A1 вертикальные)
-        const coords = [
-            // Левая стена (x: -1.97)
-            { x: -1.97, y: 1.6, z: -2.25, rot: 90 },
-            { x: -1.97, y: 1.6, z: -0.75, rot: 90 },
-            { x: -1.97, y: 1.6, z: 0.75,  rot: 90 },
-            { x: -1.97, y: 1.6, z: 2.25,  rot: 90 },
-            // Правая стена (x: 1.97)
-            { x: 1.97,  y: 1.6, z: -2.25, rot: -90 },
-            { x: 1.97,  y: 1.6, z: -0.75, rot: -90 },
-            { x: 1.97,  y: 1.6, z: 0.75,  rot: -90 },
-            { x: 1.97,  y: 1.6, z: 2.25,  rot: -90 },
-            // Передняя стена (z: -3.47)
-            { x: -0.8,  y: 1.6, z: -3.47, rot: 0 },
-            { x: 0.8,   y: 1.6, z: -3.47, rot: 0 },
-            // Задняя стена (z: 3.47)
-            { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 },
-            { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
-        ];
+const coords = [
+    { x: -1.97, y: 1.6, z: -2.25, rot: 90 }, { x: -1.97, y: 1.6, z: -0.75, rot: 90 },
+    { x: -1.97, y: 1.6, z: 0.75,  rot: 90 }, { x: -1.97, y: 1.6, z: 2.25,  rot: 90 },
+    { x: 1.97,  y: 1.6, z: -2.25, rot: -90 }, { x: 1.97,  y: 1.6, z: -0.75, rot: -90 },
+    { x: 1.97,  y: 1.6, z: 0.75,  rot: -90 }, { x: 1.97,  y: 1.6, z: 2.25,  rot: -90 },
+    { x: -0.8,  y: 1.6, z: -3.47, rot: 0 }, { x: 0.8,   y: 1.6, z: -3.47, rot: 0 },
+    { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 }, { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
+];
 
-        // Генерируем 12 постеров
-        coords.forEach((pos, i) => {
-            const id = i + 1;
-            
-            // 1. Добавляем картинку в ассеты
-            const img = document.createElement('img');
-            img.setAttribute('id', `art${id}`);
-            img.setAttribute('src', `assets/art${id}.jpg`);
-            assets.appendChild(img);
-
-            // 2. Создаем сущность картины
-            const entity = document.createElement('a-entity');
-            entity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-            entity.setAttribute('rotation', `0 ${pos.rot} 0`);
-            
-            entity.innerHTML = `
-                <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
-                <a-image src="#art${id}" width="0.6" height="0.84" position="0 0 0.02" 
-                         material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
-                <a-light type="spot" position="0 1.2 1" rotation="-45 0 0" intensity="0.4" penumbra="1" angle="45"></a-light>
-            `;
-            
-            gallery.appendChild(entity);
-        });
+coords.forEach((pos, i) => {
+    const id = i + 1;
+    const entity = document.createElement('a-entity');
+    entity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+    entity.setAttribute('rotation', `0 ${pos.rot} 0`);
+    
+    // Прямая вставка пути к картинке в src (без ожидания в assets)
+    entity.innerHTML = `
+        <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
+        <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
+                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
+    `;
+    gallery.appendChild(entity);
+});
     </script>
 </body>
 </html>
