@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Pure 6DoF Walk</title>
+    <title>Museum Dev Lab | Monolith Gallery</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -23,7 +23,7 @@
         #splash-screen {
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
-            background: #050505; color: #ffffff;
+            background: #010101; color: #ffffff;
             z-index: 10000; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             font-family: 'Segoe UI', Tahoma, sans-serif; cursor: pointer;
@@ -48,31 +48,23 @@
         loading-screen="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=7">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=7">
-            <img id="floor-col" src="textures/floor_color.jpg?v=7">
+            <img id="wall-col" src="textures/wall_color.jpg?v=8">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=8">
+            <img id="floor-col" src="textures/floor_color.jpg?v=8">
         </a-assets>
 
-        <a-sky color="#050505"></a-sky>
-        <a-sphere position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
-                  material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
+        <a-sky color="#010101"></a-sky>
+        <a-sphere position="0 0 0" radius="15" phi-length="180" rotation="90 0 0" 
+                  material="color: #4facfe; side: back; wireframe: true; opacity: 0.05"></a-sphere>
 
-        <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
-                  material="src: #floor-col; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;"></a-circle>
+        <a-circle position="0 0.01 0" radius="8" rotation="-90 0 0" 
+                  material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;"></a-circle>
         
-        <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
+        <a-circle position="0 6 0" radius="8" rotation="90 0 0" 
                   material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
-        <a-light type="point" position="0 4 -2.3" intensity="0.5" distance="12"></a-light>
-        <a-light type="point" position="0 4 0" intensity="0.6" distance="12"></a-light>
-        <a-light type="point" position="0 4 2.3" intensity="0.5" distance="12"></a-light>
-
-        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111">
-            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.2" angle="25" color="#4facfe"></a-light>
-        </a-cylinder>
-
-        <a-entity id="rotunda-gallery"></a-entity>
+        <a-light type="ambient" color="#ffffff" intensity="0.1"></a-light>
+        <a-entity id="monolith-gallery"></a-entity>
 
         <a-entity id="rig" position="0 0 0">
             <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls>
@@ -82,16 +74,13 @@
     </a-scene>
 
     <script>
-        const gallery = document.querySelector('#rotunda-gallery');
+        const gallery = document.querySelector('#monolith-gallery');
         const scene = document.querySelector('a-scene');
-        const radius = 5.5; 
-        const count = 12;
-        
-        let isARSupported = false;
+        const radius = 7.5; // Радиус расстановки стен
+        const count = 6;   // 6 картин
 
         if (navigator.xr) {
             navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-                isARSupported = supported;
                 const splashText = document.getElementById('splash-text');
                 if (supported) {
                     splashText.innerHTML = "[ Коснитесь, чтобы войти в зал ]<br><br><span style='font-size: 0.8rem; color: #888;'>Вы сможете ходить физически</span>";
@@ -109,14 +98,19 @@
                 const rotY = -(i / count) * 360 - 90;
 
                 const segment = document.createElement('a-entity');
-                segment.setAttribute('position', `${x} 1.75 ${z}`);
+                // Стены высокие (6м), центр на y=3
+                segment.setAttribute('position', `${x} 3 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
                 segment.innerHTML = `
-                    <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
-                    <a-entity position="0 -0.15 0.05">
+                    <a-plane width="4" height="6" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;"></a-plane>
+                    
+                    <a-light type="spot" position="0 2.5 2.5" rotation="-90 0 0" 
+                             intensity="1.2" distance="10" angle="20" penumbra="0.5" color="#fff"></a-light>
+
+                    <a-entity position="0 -1.4 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=7" width="0.6" height="0.84" position="0 0 0.03"
+                        <a-image src="assets/art${i+1}.jpg?v=8" width="0.6" height="0.84" position="0 0 0.03"
                                  material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                         <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
                                material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
@@ -126,13 +120,22 @@
             }
         });
 
-        // Запуск
+        // Запуск сессии при клике
         document.getElementById('splash-screen').addEventListener('click', function() {
             this.style.display = 'none';
 
-            if (isARSupported) {
-                // Именно enterAR() вызывает запрос камеры на Android для SLAM-трекинга
-                scene.enterAR(); 
+            if (navigator.xr) {
+                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                    if (supported) {
+                        scene.enterAR(); 
+                    } else {
+                        try {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(()=>{});
+                            }
+                        } catch (e) {}
+                    }
+                });
             } else {
                 try {
                     if (document.documentElement.requestFullscreen) {
