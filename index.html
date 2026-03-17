@@ -3,54 +3,86 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Museum Dev Lab | Final Gallery</title>
+    <title>Gallery Fix | Museum Dev Lab</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #fff; }
-    </script>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #222; }
+    </style>
 </head>
 <body>
 
-<a-scene 
-    renderer="colorManagement: true; exposure: 0.5;" 
-    background="color: #333"
-    light="defaultLightsEnabled: false">
+    <a-scene 
+        renderer="colorManagement: true; exposure: 0.8; antialias: false;"
+        light="defaultLightsEnabled: false"
+        loading-screen="enabled: false"
+        vr-mode-ui="enabled: false">
 
-    <a-light type="ambient" color="#fff" intensity="0.3"></a-light>
+        <a-assets>
+            <img id="floor-col" src="textures/floor_color.jpg">
+            <img id="floor-nor" src="textures/floor_normal.jpg">
+            <img id="wall-nor" src="textures/wall_normal.jpg">
+        </a-assets>
 
-    <a-box position="0 1.5 0" width="4" height="3" depth="7" 
-           material="color: #888; shader: standard; side: back;"></a-box>
-    
-    <a-box position="0 1 -2" color="red"></a-box>
-</a-scene>
+        <a-sky color="#cccccc"></a-sky>
+
+        <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+        <a-light type="point" position="0 2.5 0" intensity="0.3" distance="10"></a-light>
+
+        <a-box position="0 1.5 0" width="4" height="3" depth="7" 
+               material="color: #eeeeee; shader: standard; normalMap: #wall-nor; side: back;">
+        </a-box>
+
+        <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="7" 
+                 material="src: #floor-col; normalMap: #floor-nor; repeat: 4 7; roughness: 0.8;">
+        </a-plane>
+
+        <a-entity id="gallery-walls"></a-entity>
+
+        <a-entity id="rig" movement-controls="controls: checkpoint" checkpoint-controls="mode: animate">
+            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false">
+                <a-cursor color="#555" raycaster="objects: .checkpoint"></a-cursor>
+            </a-entity>
+        </a-entity>
+
+        <a-circle class="checkpoint" position="0 0.02 2" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 0" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
+        <a-circle class="checkpoint" position="0 0.02 -2" radius="0.15" color="#000" opacity="0.2" rotation="-90 0 0"></a-circle>
+
+    </a-scene>
 
     <script>
-       const gallery = document.querySelector('#gallery-walls');
+        const scene = document.querySelector('a-scene');
+        const gallery = document.querySelector('#gallery-walls');
 
-const coords = [
-    { x: -1.97, y: 1.6, z: -2.25, rot: 90 }, { x: -1.97, y: 1.6, z: -0.75, rot: 90 },
-    { x: -1.97, y: 1.6, z: 0.75,  rot: 90 }, { x: -1.97, y: 1.6, z: 2.25,  rot: 90 },
-    { x: 1.97,  y: 1.6, z: -2.25, rot: -90 }, { x: 1.97,  y: 1.6, z: -0.75, rot: -90 },
-    { x: 1.97,  y: 1.6, z: 0.75,  rot: -90 }, { x: 1.97,  y: 1.6, z: 2.25,  rot: -90 },
-    { x: -0.8,  y: 1.6, z: -3.47, rot: 0 }, { x: 0.8,   y: 1.6, z: -3.47, rot: 0 },
-    { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 }, { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
-];
+        const coords = [
+            { x: -1.97, y: 1.6, z: -2.25, rot: 90 }, { x: -1.97, y: 1.6, z: -0.75, rot: 90 },
+            { x: -1.97, y: 1.6, z: 0.75,  rot: 90 }, { x: -1.97, y: 1.6, z: 2.25,  rot: 90 },
+            { x: 1.97,  y: 1.6, z: -2.25, rot: -90 }, { x: 1.97,  y: 1.6, z: -0.75, rot: -90 },
+            { x: 1.97,  y: 1.6, z: 0.75,  rot: -90 }, { x: 1.97,  y: 1.6, z: 2.25,  rot: -90 },
+            { x: -0.8,  y: 1.6, z: -3.47, rot: 0 }, { x: 0.8,   y: 1.6, z: -3.47, rot: 0 },
+            { x: -0.8,  y: 1.6, z: 3.47,  rot: 180 }, { x: 0.8,   y: 1.6, z: 3.47,  rot: 180 }
+        ];
 
-coords.forEach((pos, i) => {
-    const id = i + 1;
-    const entity = document.createElement('a-entity');
-    entity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-    entity.setAttribute('rotation', `0 ${pos.rot} 0`);
-    
-    // Прямая вставка пути к картинке в src (без ожидания в assets)
-    entity.innerHTML = `
-        <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
-        <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
-                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
-    `;
-    gallery.appendChild(entity);
-});
+        // Ждем полной готовности сцены
+        scene.addEventListener('loaded', function () {
+            console.log("Scene Ready! Spawning paintings...");
+            
+            coords.forEach((pos, i) => {
+                const id = i + 1;
+                const entity = document.createElement('a-entity');
+                entity.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+                entity.setAttribute('rotation', `0 ${pos.rot} 0`);
+                
+                entity.innerHTML = `
+                    <a-box width="0.66" height="0.9" depth="0.03" color="#111"></a-box>
+                    <a-image src="assets/art${id}.jpg" width="0.6" height="0.84" position="0 0 0.02" 
+                             material="shader: standard; emissive: #fff; emissiveIntensity: 0.1">
+                    </a-image>
+                `;
+                gallery.appendChild(entity);
+            });
+        });
     </script>
 </body>
 </html>
