@@ -56,5 +56,14 @@
         <a-circle class="checkpoint" position="0 0.02 -2" radius="0.15" color="#000" opacity="0.1" rotation="-90 0 0"></a-circle>
 
     </a-scene>
+
+    <script>
+  // Этот скрипт поможет Android-браузеру правильно растянуть холст при первом тапе
+  window.addEventListener('click', function () {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  });
+</script>
 </body>
 </html>
