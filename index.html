@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Hexagon Gallery</title>
+    <title>Museum Dev Lab | Optimized 12-gon Gallery</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -47,10 +47,10 @@
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false">
 
-        <a-assets timeout="1000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=9">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=9">
-            <img id="floor-col" src="textures/floor_color.jpg?v=9">
+        <a-assets timeout="10000">
+            <img id="wall-col" src="textures/wall_color.jpg?v=10">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=10">
+            <img id="floor-col" src="textures/floor_color.jpg?v=10">
         </a-assets>
 
         <a-sky color="#010101"></a-sky>
@@ -59,25 +59,43 @@
                   material="src: #floor-col; repeat: 24 24; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;"></a-circle>
         
         <a-circle position="0 6 0" radius="10" rotation="90 0 0" 
-                  material="color: #111; shader: standard; roughness: 1;"></a-circle>
+                  material="color: #050505; shader: standard; roughness: 1;"></a-circle>
 
-        <a-light type="ambient" color="#ffffff" intensity="0.05"></a-light>
+        <a-light type="ambient" color="#ffffff" intensity="0.1"></a-light>
 
-        <a-entity id="monolith-gallery"></a-entity>
+        <a-entity id="gallery-container"></a-entity>
 
         <a-entity id="rig" position="0 0 0">
-            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls>
-            </a-entity>
+            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls></a-entity>
         </a-entity>
 
     </a-scene>
 
     <script>
-        const gallery = document.querySelector('#monolith-gallery');
+        const gallery = document.querySelector('#gallery-container');
         const scene = document.querySelector('a-scene');
         
-        const radius = 7.5; 
-        const count = 6;   
+        const count = 12;      // 12 стен
+        const radius = 7.5;    // Радиус зала
+        
+        // Индексы стен, на которых будут висеть картины (две группы по 3)
+        // Группа 1: стены 11, 0, 1 (Центр - стена 0)
+        // Группа 2: стены 5, 6, 7 (Центр - стена 6)
+        const artWalls = [11, 0, 1, 5, 6, 7]; 
+        let artCounter = 1;
+
+        // Ловим падение видеопамяти на мобилках
+        scene.addEventListener('loaded', function () {
+            const canvas = document.querySelector('.a-canvas');
+            if (canvas) {
+                canvas.addEventListener('webglcontextlost', function (event) {
+                    event.preventDefault();
+                    const splash = document.getElementById('splash-screen');
+                    splash.style.display = 'flex';
+                    splash.innerHTML = `<h1 style="color: #ff4444;">CRASH</h1><p>Браузеру не хватило видеопамяти.<br>Сожмите текстуры.</p>`;
+                }, false);
+            }
+        });
 
         if (navigator.xr) {
             navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
@@ -101,53 +119,15 @@
                 segment.setAttribute('position', `${x} 3 ${z}`);
                 segment.setAttribute('rotation', `0 ${rotY} 0`);
                 
-                segment.innerHTML = `
-                    <a-plane width="8.7" height="6" material="src: #wall-col; normalMap: #wall-nor; repeat: 4 3; roughness: 1;"></a-plane>
-                    
-                    <a-light type="spot" position="0 2.5 3" rotation="-40 0 0" 
-                             intensity="1.5" distance="12" angle="35" penumbra="0.7" color="#fff"></a-light>
-
-                    <a-entity position="0 -1.4 0.05">
-                        <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=9" width="0.6" height="0.84" position="0 0 0.03"
-                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.2"></a-image>
-                        
-                        <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
-                               material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
-                    </a-entity>
-                `;
-                gallery.appendChild(segment);
-            }
-        });
-
-        // Запуск
-        document.getElementById('splash-screen').addEventListener('click', function() {
-            this.style.display = 'none';
-
-            if (navigator.xr) {
-                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-                    if (supported) {
-                        scene.enterAR(); 
-                    } else {
-                        try {
-                            if (document.documentElement.requestFullscreen) {
-                                document.documentElement.requestFullscreen().catch(()=>{});
-                            }
-                        } catch (e) {}
-                    }
-                });
-            } else {
-                try {
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(()=>{});
-                    }
-                } catch (e) {}
-            }
-        });
-
-        scene.addEventListener('exit-vr', () => {
-            document.getElementById('splash-screen').style.display = 'flex';
-        });
-    </script>
-</body>
-</html>
+                // Базовая стена (ширина 4.05 для радиуса 7.5м, чтобы не было щелей)
+                let innerHTML = `<a-plane width="4.05" height="6" material="src: #wall-col; normalMap: #wall-nor; repeat: 2 3; roughness: 1;"></a-plane>`;
+                
+                // Если стена входит в список artWalls, вешаем картину
+                if (artWalls.includes(i)) {
+                    innerHTML += `
+                        <a-entity position="0 -1.4 0.05">
+                            <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
+                            <a-image src="assets/art${artCounter}.jpg?v=10" width="0.6" height="0.84" position="0 0 0.03"
+                                     material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
+                            <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
+                                   material="emissive:
