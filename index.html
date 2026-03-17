@@ -3,50 +3,65 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Hall v1.4</title>
+    <title>Museum Dev Lab | Final Boss v2</title>
     
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
-        /* Принудительное обнуление отступов и фиксация холста */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { 
             width: 100%; height: 100%; height: -webkit-fill-available; 
-            overflow: hidden; position: fixed; background-color: #000; 
+            overflow: hidden; position: fixed; 
+            /* Если полоса не уходит, сделаем её хотя бы незаметной */
+            background-color: #050505; 
         }
         .a-canvas {
             position: fixed !important;
             top: 0 !important; left: 0 !important;
-            width: 100vw !important; height: 100% !important;
-            height: -webkit-fill-available !important;
+            width: 100% !important; height: 100% !important;
         }
+        /* Прячем кнопку VR, которая часто создает пустую область снизу или сбоку */
         .a-enter-vr { display: none !important; }
     </style>
 
     <script>
-        // СКРИПТ-КИЛЛЕР: удаляет Service Workers, которые могут кэшировать старые баги
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) { registration.unregister(); }
-            });
-        }
+        // Кастомный компонент для принудительного ресайза на Android
+        AFRAME.registerComponent('mobile-fix', {
+            init: function () {
+                this.resize = this.resize.bind(this);
+                window.addEventListener('resize', this.resize);
+                window.addEventListener('orientationchange', () => setTimeout(this.resize, 500));
+                this.resize();
+            },
+            resize: function () {
+                let scene = this.el.sceneEl;
+                let canvas = scene.canvas;
+                if (canvas) {
+                    canvas.style.width = window.innerWidth + 'px';
+                    canvas.style.height = window.innerHeight + 'px';
+                    if (scene.renderer) {
+                        scene.renderer.setSize(window.innerWidth, window.innerHeight, false);
+                    }
+                }
+            }
+        });
     </script>
 </head>
 <body>
 
     <a-scene 
-        renderer="colorManagement: true; exposure: 1.1; antialias: true; precision: medium;"
+        mobile-fix
+        renderer="colorManagement: true; exposure: 1.1; antialias: true;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false"
         vr-mode-ui="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="floor-col" src="textures/floor_color.jpg?v=1">
-            <img id="floor-nor" src="textures/floor_normal.jpg?v=1">
-            <img id="wall-col" src="textures/wall_color.jpg?v=1">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=1">
+            <img id="floor-col" src="textures/floor_color.jpg">
+            <img id="floor-nor" src="textures/floor_normal.jpg">
+            <img id="wall-col" src="textures/wall_color.jpg">
+            <img id="wall-nor" src="textures/wall_normal.jpg">
         </a-assets>
 
         <a-sky color="#050505"></a-sky>
@@ -55,20 +70,11 @@
                   material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
 
         <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
-        <a-light type="point" position="0 4 -2.3" intensity="0.5" distance="12"></a-light>
-        <a-light type="point" position="0 4 0" intensity="0.6" distance="12"></a-light>
-        <a-light type="point" position="0 4 2.3" intensity="0.5" distance="12"></a-light>
+        <a-light type="point" position="0 4 0" intensity="0.8" distance="15"></a-light>
 
         <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
-                  material="src: #floor-col; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;">
+                  material="src: #floor-col; normalMap: #floor-nor; roughness: 0.1; metalness: 0.6;">
         </a-circle>
-
-        <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
-                  material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
-
-        <a-cylinder position="0 0.1 0" radius="1.2" height="0.2" color="#111">
-            <a-light type="spot" position="0 3.4 0" rotation="-90 0 0" intensity="1.2" angle="25" color="#4facfe"></a-light>
-        </a-cylinder>
 
         <a-entity id="rotunda-gallery"></a-entity>
 
@@ -77,10 +83,6 @@
                 <a-cursor color="#4facfe" raycaster="objects: .checkpoint"></a-cursor>
             </a-entity>
         </a-entity>
-
-        <a-circle class="checkpoint" position="0 0.05 3" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
-        <a-circle class="checkpoint" position="-2.5 0.05 -1.5" radius="0.2" color="#4facfe" opacity="0.3" rotation="-90 0 0"></a-circle>
 
     </a-scene>
 
@@ -105,39 +107,22 @@
                     <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=1" width="0.6" height="0.84" position="0 0 0.03"
-                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
-                        <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
-                               material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
+                        <a-image src="assets/art${i+1}.jpg" width="0.6" height="0.84" position="0 0 0.03"
+                                 material="shader: standard; emissive: #fff; emissiveIntensity: 0.1"></a-image>
                     </a-entity>
                 `;
                 gallery.appendChild(segment);
             }
-            setTimeout(forceResize, 300);
         });
 
-        function forceResize() {
-            window.scrollTo(0, 0);
-            if (scene) {
-                scene.resize();
-                const canvas = scene.canvas;
-                if (canvas) {
-                    canvas.style.left = "0px";
-                    canvas.style.width = window.innerWidth + 'px';
-                    canvas.style.height = window.innerHeight + 'px';
-                }
-            }
-        }
-
-        // Вход в Fullscreen убивает полосу в 99% случаев
-        document.body.addEventListener('touchstart', () => {
+        // ПРИНУДИТЕЛЬНЫЙ FULLSCREEN: самый эффективный способ убрать полосы на Android
+        document.body.addEventListener('click', function() {
             if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().then(forceResize).catch(() => {});
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
             }
         }, { once: true });
-
-        window.addEventListener('orientationchange', () => setTimeout(forceResize, 500));
-        window.addEventListener('resize', forceResize);
     </script>
 </body>
 </html>
