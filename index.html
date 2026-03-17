@@ -4,10 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Museum Dev Lab | Smart 6DoF Gallery</title>
+    <title>Museum Dev Lab | Pure 6DoF Walk</title>
     
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,7 +17,6 @@
         .a-canvas {
             position: fixed !important; top: 0 !important; left: 0 !important;
             width: 100vw !important; height: 100% !important;
-            height: -webkit-fill-available !important;
         }
         .a-enter-vr { display: none !important; }
 
@@ -33,11 +31,7 @@
         #splash-screen h1 { font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; text-align: center; }
         #splash-screen p { color: #4facfe; font-size: 1.1rem; text-align: center; padding: 0 20px; transition: 0.3s; }
         .pulse-text { animation: pulse 1.5s infinite alternate; }
-        
-        @keyframes pulse {
-            from { opacity: 0.4; }
-            to { opacity: 1; }
-        }
+        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -48,23 +42,24 @@
     </div>
 
     <a-scene 
-        webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local-floor"
+        webxr="requiredFeatures: local-floor; referenceSpaceType: local-floor"
         renderer="colorManagement: true; exposure: 1.1; antialias: true;"
         light="defaultLightsEnabled: false"
         loading-screen="enabled: false">
 
         <a-assets timeout="1000">
-            <img id="wall-col" src="textures/wall_color.jpg?v=6">
-            <img id="wall-nor" src="textures/wall_normal.jpg?v=6">
-            <img id="floor-col" src="textures/floor_color.jpg?v=6">
+            <img id="wall-col" src="textures/wall_color.jpg?v=7">
+            <img id="wall-nor" src="textures/wall_normal.jpg?v=7">
+            <img id="floor-col" src="textures/floor_color.jpg?v=7">
         </a-assets>
 
-        <a-sky id="sky" color="#050505"></a-sky>
-        <a-sphere id="dome" position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
+        <a-sky color="#050505"></a-sky>
+        <a-sphere position="0 0 0" radius="12" phi-length="180" rotation="90 0 0" 
                   material="color: #4facfe; side: back; wireframe: true; opacity: 0.1"></a-sphere>
 
-        <a-circle id="virtual-floor" position="0 0.01 0" radius="6" rotation="-90 0 0" 
+        <a-circle position="0 0.01 0" radius="6" rotation="-90 0 0" 
                   material="src: #floor-col; normalMap: #floor-nor; normalScale: 0.2 0.2; roughness: 0.1; metalness: 0.6;"></a-circle>
+        
         <a-circle position="0 3.5 0" radius="6" rotation="90 0 0" 
                   material="color: #ffffff; shader: standard; roughness: 1;"></a-circle>
 
@@ -79,8 +74,8 @@
 
         <a-entity id="rotunda-gallery"></a-entity>
 
-        <a-entity id="rig" movement-controls="speed: 0.15">
-            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false; touchEnabled: true;">
+        <a-entity id="rig" position="0 0 0">
+            <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls>
             </a-entity>
         </a-entity>
 
@@ -94,20 +89,18 @@
         
         let isARSupported = false;
 
-        // 1. Проверяем поддержку AR в фоне
         if (navigator.xr) {
             navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
                 isARSupported = supported;
                 const splashText = document.getElementById('splash-text');
                 if (supported) {
-                    splashText.innerHTML = "[ Коснитесь, чтобы войти в AR зал ]<br><br><span style='font-size: 0.8rem; color: #888;'>Вы сможете ходить физически</span>";
+                    splashText.innerHTML = "[ Коснитесь, чтобы войти в зал ]<br><br><span style='font-size: 0.8rem; color: #888;'>Вы сможете ходить физически</span>";
                 } else {
-                    splashText.innerHTML = "[ Кликните для входа в 3D-галерею ]<br><br><span style='font-size: 0.8rem; color: #888;'>(Используйте мышь и WASD для перемещения)</span>";
+                    splashText.innerHTML = "[ Кликните для входа ]<br><br><span style='font-size: 0.8rem; color: #888;'>(WASD для перемещения)</span>";
                 }
             });
         }
 
-        // 2. Генерация картин
         scene.addEventListener('loaded', () => {
             for (let i = 0; i < count; i++) {
                 const angle = (i / count) * Math.PI * 2;
@@ -123,7 +116,7 @@
                     <a-plane width="3" height="3.5" material="src: #wall-col; normalMap: #wall-nor; repeat: 1.5 1.5; roughness: 1;"></a-plane>
                     <a-entity position="0 -0.15 0.05">
                         <a-box width="0.66" height="0.9" depth="0.05" color="#000"></a-box>
-                        <a-image src="assets/art${i+1}.jpg?v=6" width="0.6" height="0.84" position="0 0 0.03"
+                        <a-image src="assets/art${i+1}.jpg?v=7" width="0.6" height="0.84" position="0 0 0.03"
                                  material="shader: standard; emissive: #fff; emissiveIntensity: 0.15"></a-image>
                         <a-box width="0.7" height="0.01" depth="0.01" position="0 -0.5 0.02" color="#4facfe"
                                material="emissive: #4facfe; emissiveIntensity: 2"></a-box>
@@ -133,25 +126,22 @@
             }
         });
 
-        // 3. Обработка клика по сплэш-экрану
+        // Запуск
         document.getElementById('splash-screen').addEventListener('click', function() {
-            this.style.display = 'none'; // Прячем экран
+            this.style.display = 'none';
 
-            // Аккуратно запрашиваем Fullscreen (если это телефон)
-            try {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch((e) => console.log("Fullscreen ignored on desktop"));
-                }
-            } catch (e) {}
-
-            // Запускаем AR ТОЛЬКО если он поддерживается аппаратно
-            if (isARSupported && scene.systems.webxr) {
-                scene.systems.webxr.sessionConfiguration.mode = 'immersive-ar';
-                scene.enterVR(); 
+            if (isARSupported) {
+                // Именно enterAR() вызывает запрос камеры на Android для SLAM-трекинга
+                scene.enterAR(); 
+            } else {
+                try {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(()=>{});
+                    }
+                } catch (e) {}
             }
         });
 
-        // Возврат меню при выходе из AR (на телефоне)
         scene.addEventListener('exit-vr', () => {
             document.getElementById('splash-screen').style.display = 'flex';
         });
